@@ -5,7 +5,7 @@
 
 	Nota: Tentar manter esse projeto o mais organizado possivel.
 	Manter qualquer arquivo extra em .c ou .h, e lembrar de incluir SOMENTE onde vai usar.
-	Se não está sendo usado em nenhum lugar, remover o arquivo.
+	Se nÃ£o estÃ¡ sendo usado em nenhum lugar, remover o arquivo.
 
 */
 
@@ -23,7 +23,7 @@
 
 
 //==========================================
-//		DEFINIÇÕES
+//		DEFINIÃ‡Ã•ES
 //==========================================
 
 #define MAX_ANDAR 5
@@ -31,7 +31,7 @@
 #define MAX_LUGARES 50
 
 //=======================================================
-//		PROTÓTIPOS
+//		PROTÃ“TIPOS
 //=======================================================
 
 int primeiraLeitura();
@@ -66,9 +66,19 @@ typedef struct tarifas {
 	float valor_dia;
 };
 
+typedef struct {
+    int ocupado;  //1 Ã© true, ou seja 0 = livre, 1 = ocupado
+    char indisponivel; 
+} Lugar;
+
+typedef struct {
+    int pisos; //maximo de 5. minimo de 1
+    int FilasPorPiso; //maximo de 26, de A a Z
+    int lugaresPorFila; //MAX_LUGARES (50)
+} Parque;
 
 
 
 
 
-#endif /* reg_func.h */
+#endif /* estruturas.h */
