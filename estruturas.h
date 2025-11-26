@@ -1,0 +1,74 @@
+/*
+	header.h
+	Criado por: Samuel
+	Data 11/25
+
+	Nota: Tentar manter esse projeto o mais organizado possivel.
+	Manter qualquer arquivo extra em .c ou .h, e lembrar de incluir SOMENTE onde vai usar.
+	Se não está sendo usado em nenhum lugar, remover o arquivo.
+
+*/
+
+
+
+#define	_CRT_SECURE_NO_WARNINGS
+
+#ifndef reg_func.h
+#define reg_func.h
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <locale.h>
+#include <string.h>
+
+
+//==========================================
+//		DEFINIÇÕES
+//==========================================
+
+#define MAX_ANDAR 5
+#define MAX_FILA 26 // De A a Z
+#define MAX_LUGARES 50
+
+//=======================================================
+//		PROTÓTIPOS
+//=======================================================
+
+int primeiraLeitura();
+
+int leituraConstante();
+
+//=======================================================
+//		STRUCTS
+//=======================================================
+
+typedef struct posicao_estacionamento {
+	int andar; // de 0 a MAX_ANDAR-1
+	char fila; // de A = 0 a z = MAX_FILA-1
+	int lugar; // de 0 a MAX_LUGARES-1
+}VAGAS;
+
+typedef struct condicao_estacionamento {
+	int disponivel = 1; // 1 para disponivel, 0 para ocupado
+	struct VAGAS localizacao;
+} ESTACIONAMENTO;
+
+typedef struct dados_carros {
+	int hora_entrada;
+	int hora_saida;
+	int dias;
+
+}REGISTRO;
+
+typedef struct tarifas {
+	float valor_normal;
+	float valor_noturno;
+	float valor_dia;
+};
+
+
+
+
+
+
+#endif /* reg_func.h */
