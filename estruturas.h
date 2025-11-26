@@ -41,6 +41,9 @@ int leituraConstante();
 //=======================================================
 //		STRUCTS
 //=======================================================
+//=======================================================
+//		STRUCTS
+//=======================================================
 
 typedef struct posicao_estacionamento {
 	int andar; // de 0 a MAX_ANDAR-1
@@ -68,7 +71,7 @@ typedef struct tarifas {
 
 typedef struct {
     int ocupado;  //1 é true, ou seja 0 = livre, 1 = ocupado
-    char indisponivel; 
+    char indisponivel;
 } Lugar;
 
 typedef struct {
@@ -77,8 +80,26 @@ typedef struct {
     int lugaresPorFila; //MAX_LUGARES (50)
 } Parque;
 
+typedef struct{
+    char tipoTarifa; //Meter H para hora, D para Dia
+    char codigo[10];  //CT1, CT2, CT3, CT4. bastava codigo[4]. meti 10 caso se adicionem mais planos de tarifa
+    int horaInf; //das 00:00 as 22:00
+    int horaSup; //das 22:00 as 00:00
+    float valor;
+} Tarifario;
 
+typedef struct {
+    Tarifario tarifas[10];          //tarifas carregadas do ficheiro. mesma coisa de antes. nao era necessario 10
+    int totalTarifas;
 
+    Estacionamento estacionamentos[10000]; //maximo de estacionamentos e 6500. deixa se um pouco a mais caso se construam mais pisos
+    int totalEstacionamentos;
+
+    int ultimoNumeroEntrada;
+
+    Parque parque;
+
+} Sistema; //tenho de rever esta struct
 
 
 #endif /* estruturas.h */
