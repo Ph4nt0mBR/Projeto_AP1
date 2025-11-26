@@ -72,7 +72,7 @@ só sendo considerada esta tarifa se o número de passagens de dia forem >=2;
 		[] 
 		}
 
-	[] A informação de lugares disponíveis por piso de estar sempre visível
+	[] A informação de lugares disponíveis por piso deve estar sempre visível
 
 }
 
