@@ -1,7 +1,7 @@
 /*
 	header.h
 	Criado por: Samuel
-	Data 11/25
+	Data 25/11
 
 	Nota: Tentar manter esse projeto o mais organizado possivel.
 	Manter qualquer arquivo extra em .c ou .h, e lembrar de incluir SOMENTE onde vai usar.
@@ -13,8 +13,8 @@
 
 #define	_CRT_SECURE_NO_WARNINGS
 
-#ifndef reg_func.h
-#define reg_func.h
+#ifndef estruturas.h
+#define estruturas.h
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -41,9 +41,6 @@ int leituraConstante();
 //=======================================================
 //		STRUCTS
 //=======================================================
-//=======================================================
-//		STRUCTS
-//=======================================================
 
 typedef struct posicao_estacionamento {
 	int andar; // de 0 a MAX_ANDAR-1
@@ -67,18 +64,12 @@ typedef struct tarifas {
 	float valor_normal;
 	float valor_noturno;
 	float valor_dia;
-};
+};\ 
 
 typedef struct {
     int ocupado;  //1 é true, ou seja 0 = livre, 1 = ocupado
     char indisponivel;
 } Lugar;
-
-typedef struct {
-    int pisos; //maximo de 5. minimo de 1
-    int FilasPorPiso; //maximo de 26, de A a Z
-    int lugaresPorFila; //MAX_LUGARES (50)
-} Parque;
 
 typedef struct{
     char tipoTarifa; //Meter H para hora, D para Dia
@@ -92,7 +83,7 @@ typedef struct {
     Tarifario tarifas[10];          //tarifas carregadas do ficheiro. mesma coisa de antes. nao era necessario 10
     int totalTarifas;
 
-    Estacionamento estacionamentos[10000]; //maximo de estacionamentos e 6500. deixa se um pouco a mais caso se construam mais pisos
+    Estacionamento estacionamentos[6500]; //maximo de estacionamentos e 6500. deixa se um pouco a mais caso se construam mais pisos -- Não. O limite máximo q os professores defiriram é 6500
     int totalEstacionamentos;
 
     int ultimoNumeroEntrada;

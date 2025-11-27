@@ -1,16 +1,9 @@
-#include <stdio.h>
-#include <stdlib.h>
+#include "menu.h"
 
 //estas funções ainda não existem - crialas depois
 
-void entradaVeiculo();
-void consultarOcupacao();
-void saidaVeiculo();
-void gerirLugares();
-void mostrarMapaPiso();
-void listarComPaginacao();
-void extras();
-void gravarDados();
+//Tirei as funções daqui e coloquei em menu.h
+//Vamo manter aqui só o q ta sendo usado [Samuel]
 
 //Função para mostrar os lugares disponiveis.
 

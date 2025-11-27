@@ -1,5 +1,5 @@
-#ifndef FUNCOES_H
-#define FUNCOES_H
+#ifndef funcoes.h
+#define funcoes.h
 
 //-----------------------------------------------
 //  Inicialização e carregamento de dados
@@ -79,4 +79,4 @@ void gerarGrafico();
 void gerarTabelaDinamica();
 void gerarCSV();
 
-#endif
+#endif /* funcoes.h */
