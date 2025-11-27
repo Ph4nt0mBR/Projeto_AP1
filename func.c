@@ -33,17 +33,28 @@ int primeiraLeitura() // Aqui a gente vai ler os aruivos 1x, por isso q os .txt 
 //----------------------------------------------------
 // Inicialização e carregamento de dados
 //----------------------------------------------------
-void configurarParque() {
+void configurarParque(Parque* p) {    //eu amanha documento isto melhor maltinha. (bruno)
 
-}
 
-void carregarTarifasDeFicheiro() {
+    do {
+        printf("Tamanho de pisos(1-5):\n");
+        scanf("%d", &p->pisos);
 
-}
+    } while (p->pisos<1 || p->pisos > MAX_PISOS); //verifica se o numero de pisos e valido(maior q um, menor q 5
+    do {
+        printf("Numero de filas por piso (1-26): \n");
+        scanf("%d", &p->filasPorPiso);
+    } while (p->filasPorPiso < 1 || p->filasPorPiso > MAX_FILAS);
 
-void carregarEstacionamentosDeFicheiro() {
+    do {
+        printf("Numero de lugares por cada fila(1-50):\n");
+        scanf("%d", &p->lugaresPorFila);
+    } (p->lugaresPorFila < 1 || p->lugaresPorFila > MAX_LUGARES);
 
-}
+} //acho q thats it. qualquer cena volta se ca no troublleshoot
+
+
+// Removi as funções de carregar tarifas e estacionamento. Vou converter em uma função que inicia a primeira leitura dos arquivos .atxt e depois dos arquivos em .bin [Samuel]
 
 void inicializarSistema() {
 
