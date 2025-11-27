@@ -30,67 +30,138 @@
 #define MAX_FILA 26 // De A a Z
 #define MAX_LUGARES 50
 
-//=======================================================
-//		PROTÓTIPOS
-//=======================================================
+#define MAX_ESTACIONAMENTOS 6500 // Limite máximo de vagas no estacionamento
+#define MAX_TARIFAS 10 // Limite máximo de planos de tarifas com margem [Samuel]
 
-int primeiraLeitura();
+//==========================================
+//		ENUMERAÇÕES (Objetivo de padronizar estados e codigos)
+//==========================================
 
-int leituraConstante();
+typedef enum estado_lugar { // Flag para informar se o lugar está ocupado ou livre
+	LUGAR_LIVRE = 0,
+	LUGAR_OCUPADO = 1
+} EstadoLugar;
 
-//=======================================================
+typedef enum lugar_indisponivel { //Flag para informar locais indisponiveis por motivos diferentes de vaga preenchida
+	LUGAR_DISPONIVEL = 0,
+	LUGAR_INDISPONIVEL = 1
+} LugarIndisponivel;
+
+typedef enum estado_registro { // Estado do registro de estacionamento
+	ESTADO_ATIVO = 0,
+	ESTADO_FINALIZADO = 1
+} EstadoRegistro;
+
+typedef enum tarifas_codigo {
+	TARIFA_T1 = 0, /* 08:00-21:59 */
+	TARIFA_T2 = 1, /* 22:00-07:59 */
+	TARIFA_T3 = 2, /* Dia completo (00:00-23:59) */
+	TARIFA_T4 = 3  /* Varios dias (tecnicamente falando é T3>=2)*/
+} CodigoTarifa;
+
+typedef enum tipo_tarifa { // Tipo de tarifa: por hora ou por dia (Para ficar mais facil de identificar)
+	TIPO_TARIFA_HORA = 0,
+ 	TIPO_TARIFA_DIA = 1
+} TipoTarifa;
+
+typedef enum leitura {
+	LER_OK = 0,
+	LER_FALHA_ABRIR,
+	LER_FICHEIRO_VAZIO,
+	LER_ERRO_FORMATO,
+	LER_ERRO_IO,
+	LER_DIMENSOES_INVALIDAS,
+	LER_CAPACIDADE_EXCEDIDA
+} Leitura;
+
+
+//==========================================
 //		STRUCTS
-//=======================================================
+//==========================================
 
-typedef struct posicao_estacionamento {
+typedef struct posicao_estacionamento {		//(X, Y, Z) para a localização do veículo
 	int andar; // de 0 a MAX_ANDAR-1
 	char fila; // de A = 0 a z = MAX_FILA-1
 	int lugar; // de 0 a MAX_LUGARES-1
-}VAGAS;
+} VAGAS;
 
-typedef struct condicao_estacionamento {
+typedef struct condicao_estacionamento {	// Verificar se a vaga está ocupada ou livre
 	int disponivel = 1; // 1 para disponivel, 0 para ocupado
-	struct VAGAS localizacao;
+	VAGAS localizacao;
 } ESTACIONAMENTO;
 
 typedef struct dados_carros {
 	int hora_entrada;
 	int hora_saida;
 	int dias;
-
-}REGISTRO;
+} REGISTRO;
 
 typedef struct tarifas {
-	float valor_normal;
-	float valor_noturno;
-	float valor_dia;
-};\ 
+	float valor_T1;
+	float valor_T2;
+	float valor_T3;
+	float valor_T4;
+} TARIFA_AGRUPADA; 
 
-typedef struct {
-    int ocupado;  //1 é true, ou seja 0 = livre, 1 = ocupado
-    char indisponivel;
-} Lugar;
+typedef struct tarifario{
+	TipoTarifa tipo;	//tipo de tarifa (hora ou dia)
+	CodigoTarifa codigo;//codigo da tarifa (T1, T2, T3, T4)
+	int horaCheg;		//Horario de entrada dos veículos
+	int horaSai;		//Horario de saida dos veículos
+	float valor;		//valor da tarifa
+	char etiqueta[10];	//etiqueta da tarifa (ex: normal, especial, etc)
+} TARIFARIO;
 
-typedef struct{
-    char tipoTarifa; //Meter H para hora, D para Dia
-    char codigo[10];  //CT1, CT2, CT3, CT4. bastava codigo[4]. meti 10 caso se adicionem mais planos de tarifa
-    int horaInf; //das 00:00 as 22:00
-    int horaSup; //das 22:00 as 00:00
-    float valor;
-} Tarifario;
+typedef struct lugar {
+	EstadoLugar estado;		//LUGAR_LIVRE ou LUGAR_OCUPADO
+	LugarIndisponivel flag;	//LUGAR_DISPONIVEL ou LUGAR_INDISPONIVEL
+} LUGAR;
 
-typedef struct {
-    Tarifario tarifas[10];          //tarifas carregadas do ficheiro. mesma coisa de antes. nao era necessario 10
-    int totalTarifas;
+typedef struct parque {		// Config da matriz do estacionamento
+	int pisos;			// Numero de pisos (max 5)
+	int filasPorPiso;	// Numero de filas por piso (max 26)
+	int lugaresPorFila;	// Numero de lugares por fila (max 50)
 
-    Estacionamento estacionamentos[6500]; //maximo de estacionamentos e 6500. deixa se um pouco a mais caso se construam mais pisos -- Não. O limite máximo q os professores defiriram é 6500
-    int totalEstacionamentos;
+	LUGAR mapa[MAX_ANDAR][MAX_FILA][MAX_LUGARES]; // Matriz que representa o estacionamento
+} PARQUE;
 
-    int ultimoNumeroEntrada;
+typedef struct registro_estacionamento {
+	int id;
+	char matricula[10];
+	char dataEntrada[11]; /* dd/mm/aaaa */
+	char horaEntrada[6];  /* hh:mm */
+	char dataSaida[11];   /* dd/mm/aaaa */
+	char horaSaida[6];    /* hh:mm */
 
-    Parque parque;
+	int andar;
+	char fila;
+	int lugar;
 
-} Sistema; //tenho de rever esta struct
+	EstadoRegistro estado; // ESTADO_ATIVO ou ESTADO_FINALIZADO
+} REGISTRO_ESTACIONAMENTO;
 
+typedef struct sistema {
+	PARQUE parque;
+
+	TARIFA_AGRUPADA tarifasBase;
+	TARIFARIO tarifas[MAX_TARIFAS];
+	int totalTarifas;
+
+	REGISTRO_ESTACIONAMENTO estacionamentos[MAX_ESTACIONAMENTOS];
+	int totalEstacionamentos;
+
+	int ultimoNumEntrada;
+
+} SISTEMA; //tenho de rever esta struct -- Já ta revisada [Samuel]
+
+
+//=======================================================
+//		PROTÓTIPOS
+//=======================================================
+
+ResultadoLeitura primeiraLeitura(SISTEMA* s);
+ResultadoLeitura leituraConstante(SISTEMA* s);
+void inicializarSistema(SISTEMA* s);
+void configurarParque(PARQUE* p);
 
 #endif /* estruturas.h */
