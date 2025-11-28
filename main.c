@@ -1,7 +1,7 @@
 #include <windows.h>
 #include<stdio.h>
 #include <locale.h>  
-int main()  
+//int main()  ja tem int main no menu.c __Lu
 { 
 setlocale(LC_ALL, "Portuguese"); 
 	
@@ -10,3 +10,4 @@ return 0;
 } 
 
 //testar git pull
+
