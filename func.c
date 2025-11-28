@@ -18,6 +18,38 @@
 
 
 //=======================================================
+// Utilitários
+//=======================================================
+
+void trimTexto(char* s) { //Remove espaços em branco no final de uma string
+	
+	if (!s) return;
+    stze_t n = strlen(s);
+    while (n > 0 && (s[n-1] == '\n' || s[n-1] == '\r' || s[n-1] == ' ' || s[n-1] == '\t')) {
+        s[--n] = '\0';
+	}
+}
+
+FILE* abrirArquivoTexto(const char* caminho, const char* modo) {
+	
+    FILE* f = fopen(caminho, modo);
+    if (!f) {
+		printf("Erro ao abrir o arquivo: %s\n", caminho);
+		return NULL;
+    }
+	return f;
+}
+
+int coordenadaValida(const Parque* p, int andar, char, filaChar, int lugar) {
+    
+    if (!p) return 0;
+    if (andar < 0 || andar >= p->pisos) return 0;
+
+
+}
+
+
+//=======================================================
 // Leituras
 //=======================================================
 
