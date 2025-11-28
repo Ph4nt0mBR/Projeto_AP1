@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "funcoes.h"
+//Çuca
 
 //----------------------------------------------------
 // Inicialização e carregamento de dados
