@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include "funcoes.h"
-//Çuca
+
 
 //----------------------------------------------------
 // Inicialização e carregamento de dados
@@ -67,7 +67,28 @@ void carregarTarifasDeFicheiro(Sistema *s) {
         
 }
 
-void carregarEstacionamentosDeFicheiro() {
+void carregarEstacionamentosDeFicheiro(Sistema *s) {
+    FILE* f = fopen("Estacionamentos.txt", "r");
+    if (!f) {
+        printf("Houve um erro ao abrir o ficheiro.\n");
+        return;
+    }
+
+	s->totalEstacionamentos = 0;
+    Estacionamento e;
+	while (fscanf(f, "%d %s %s %d %d %d %d %f\n",
+		&e.numEntrada,
+		e.matricula,
+		e.tipoVeiculo,
+		&e.piso,
+		&e.fila,
+		&e.lugar,
+		&e.horaEntrada,
+		&e.valorPago) == 8) {
+		s->estacionamentos[s->totalEstacionamentos++] = e;
+	}
+	fclose(f);
+	printf("Estacionamentos carregados com sucesso: %d\n", s->totalEstacionamentos);% d, )
 
 }
 
@@ -228,4 +249,5 @@ void gerarTabelaDinamica() {
 void gerarCSV() {
 
 }
+
 
