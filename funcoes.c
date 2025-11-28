@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "funcoes.h"
 
+
 //----------------------------------------------------
 // Inicialização e carregamento de dados
 //----------------------------------------------------
@@ -248,4 +249,5 @@ void gerarTabelaDinamica() {
 void gerarCSV() {
 
 }
+
 

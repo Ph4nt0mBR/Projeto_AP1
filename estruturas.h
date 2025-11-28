@@ -37,15 +37,11 @@
 //		ENUMERAÇÕES (Objetivo de padronizar estados e codigos)
 //==========================================
 
-typedef enum estado_lugar { // Flag para informar se o lugar está ocupado ou livre
+typedef enum estado_lugar { // Flag para informar se o lugar está ocupado, livre ou indisponível
 	LUGAR_LIVRE = 0,
-	LUGAR_OCUPADO = 1
+	LUGAR_OCUPADO = 1,
+	LUGAR_INDISPONIVEL = 2
 } EstadoLugar;
-
-typedef enum lugar_indisponivel { //Flag para informar locais indisponiveis por motivos diferentes de vaga preenchida
-	LUGAR_DISPONIVEL = 0,
-	LUGAR_INDISPONIVEL = 1
-} LugarIndisponivel;
 
 typedef enum estado_registro { // Estado do registro de estacionamento
 	ESTADO_ATIVO = 0,
@@ -72,7 +68,7 @@ typedef enum leitura {
 	LER_ERRO_IO,
 	LER_DIMENSOES_INVALIDAS,
 	LER_CAPACIDADE_EXCEDIDA
-} Leitura;
+} ResultadoLeitura;
 
 
 //==========================================
@@ -114,7 +110,6 @@ typedef struct tarifario{
 
 typedef struct lugar {
 	EstadoLugar estado;		//LUGAR_LIVRE ou LUGAR_OCUPADO
-	LugarIndisponivel flag;	//LUGAR_DISPONIVEL ou LUGAR_INDISPONIVEL
 } LUGAR;
 
 typedef struct parque {		// Config da matriz do estacionamento

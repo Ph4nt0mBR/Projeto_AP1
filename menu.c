@@ -17,7 +17,7 @@ printf("Piso 4: %d\n", 50);
 printf("Piso 5: %d\n\n", 27);
 
 }
-int main() {
+mostrarMenuPrincipal() {    //troquei o nome pq ja tem um int main no main.c __Lu
     setlocale(LC_ALL, "portuguese");
    int opcao;
 
