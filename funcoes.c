@@ -88,7 +88,7 @@ void carregarEstacionamentosDeFicheiro(Sistema *s) {
 		s->estacionamentos[s->totalEstacionamentos++] = e;
 	}
 	fclose(f);
-	printf("Estacionamentos carregados com sucesso: %d\n", s->totalEstacionamentos);% d, )
+    printf("Estacionamentos carregados com sucesso: %d\n", s->totalEstacionamentos);
 
 }
 

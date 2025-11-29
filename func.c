@@ -88,9 +88,55 @@ void configurarParque(Parque* p) {    //eu amanha documento isto melhor maltinha
 
 // Removi as funções de carregar tarifas e estacionamento. Vou converter em uma função que inicia a primeira leitura dos arquivos .atxt e depois dos arquivos em .bin [Samuel]
 
-void inicializarSistema() {
+void inicializarSistema(SISTEMA* s) {
+    int a, f, l;
 
-}
+    //reset geral dos contadores
+    s->totalTarifas = 0;
+    s->totalEstacionamentos = 0;
+    s->ultimoNumEntrada = 0;
+
+    //configuração inicial (valores minimos validos)
+    s->parque.pisos = 1;
+    s->parque.filasPorPiso = 1;
+    s->parque.lugaresPorFila = 1;
+
+    //inicializar matriz do parque: todos os lugares livres
+    for (a = 0; a < MAX_ANDAR; a++) {
+        for (f = 0; f < MAX_FILA; f++) {
+            for (l = 0; l < MAX_LUGARES; l++) {
+                s->parque.mapa[a][f][l] = LUGAR_LIVRE;
+            }
+        }
+    }
+
+    //reset das tarifas agrupadas
+    s->tarifasBase.valor_T1 = 0.0f;
+    s->tarifasBase.valor_T2 = 0.0f;
+    s->tarifasBase.valor_T3 = 0.0f;
+    s->tarifasBase.valor_T4 = 0.0f;
+
+    //reset das tarifas individuais
+    for (a = 0; a < MAX_TARIFAS; a++) {
+        s->tarifas[a].valor = 0.0f;
+        strcpy(s->tarifas[a].etiqueta, "");
+    }
+
+    //reset geral da lista de estacionamentos
+    for (a = 0; a < MAX_ESTACIONAMENTOS; a++) {
+        s->estacionamentos[a].id = 0;
+        s->estacionamentos[a].estado = LUGAR_LIVRE;
+        strcpy(s->estacionamentos[a].matricula, "");
+        strcpy(s->estacionamentos[a].dataEntrada, "");
+        strcpy(s->estacionamentos[a].horaEntrada, "");
+        strcpy(s->estacionamentos[a].dataSaida, "");
+        strcpy(s->estacionamentos[a].horaSaida, "");
+    }
+
+    // Carregar ficheiros de dados
+    primeiraLeitura(s);
+    leituraConstante(s);
+} //esta funcao e basicamente "formatar" o sistema. Tudo volta ao "estado inicial"
 
 //----------------------------------------------------
 // Menus
