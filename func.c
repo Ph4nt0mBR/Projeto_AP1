@@ -219,9 +219,83 @@ void mostrarOcupacaoPisos() {
 //----------------------------------------------------
 // Entrada de veículos
 //----------------------------------------------------
-int registarEntradaVeiculo() {
+int registarEntradaVeiculo(Sistema* s) {
+	if (!s) return -1;
 
-    return 0;
+    Estacionamento novo;
+
+	novo.numEntrada = ++s->ultimoNumEntrada;
+
+	printf("Matriculas do veiculo: ");
+	scanf("%s", novo.matricula);
+
+	printf("Tipo de veiculo (ex: 'Carro', 'Moto', 'Camiao'): ");)
+    scanf("%s", novo.tipoVeiculo);
+
+
+    
+    int piso; //escolher piso
+    printf("Piso pretendido (0 a %d): ", s->parque.pisos - 1);
+    scanf("%d", &piso);
+
+
+    
+    if (piso < 0 || piso >= s->parque.pisos) { //validacao piso
+        printf("Piso inválido!
+            ");
+            return -1;
+    }
+
+
+	// Procurar lugar livre no piso escolhido
+    int fila, lugar;
+    int encontrou = 0;
+
+
+    for (fila = 0; fila < s->parque.filasPorPiso && !encontrou; fila++) {
+        for (lugar = 0; lugar < s->parque.lugaresPorFila && !encontrou; lugar++) {
+            if (s->parque.mapa[piso][fila][lugar] == LUGAR_LIVRE) {
+                encontrou = 1;
+            }
+        }
+    }
+
+
+    if (!encontrou) {
+        printf("Não existem lugares disponíveis neste piso.
+            ");
+            return -1;
+    }
+
+
+    //guardar lugar atribuido
+    novo.piso = piso;
+    novo.fila = fila - 1;
+    novo.lugar = lugar - 1;
+
+
+	//registar data e hora de entrada
+    printf("Hora de entrada (HH:MM): ");
+    scanf("%s", novo.horaEntrada);
+
+
+	//estado inicial do estacionamento
+    novo.estado = LUGAR_OCUPADO;
+
+
+    //atualizar mapa
+    s->parque.mapa[piso][novo.fila][novo.lugar] = LUGAR_OCUPADO;
+
+
+	//adicionar a lista de estacionamentos
+    s->estacionamentos[s->totalEstacionamentos++] = novo;
+
+
+    printf("Entrada registada com sucesso! Ticket Nº %d
+        ", novo.numEntrada);
+
+
+        return novo.numEntrada;
 }
 
 int atribuirLugar(int piso) {
