@@ -85,6 +85,73 @@ void configurarParque(Parque* p) {    //eu amanha documento isto melhor maltinha
 
 } //acho q thats it. qualquer cena volta se ca no troublleshoot
 
+void carregarTarifasDeFicheiro(Sistema* s) {
+    FILE* f = fopen("Tarifario.txt", "r");
+    if (!f) {
+        printf("Erro ao abrir o ficheito Tarefario.txt.\n");
+        return;
+    }
+
+    s->totalTarifas = 0;
+
+    char tipo;
+    char codigo[10];
+    char hInf[10];
+    char hSup[10];
+    char valorStr[20];
+
+    while (fscanf(f, " %c %s %s %s %s", &tipo, codigo, hInf, hSup, valorStr) == 5)
+    {
+
+        Tarifario t;
+        t.tipoTarifa = tipo;
+        strcpy(t.codigo, codigo);
+
+        int hora, min;
+
+        sscanf(hInf, "%d:%d", &hora, &min);
+        t.horaInf = hora * 100 + min;
+
+        sscanf(hSup, "%d:%d", &hora, &min);
+        t.horaInf = hora * 100 + min;
+        valorStr[strcspn(valorStr, "€")] = "\0";
+
+        t.valor = atof(valorStr);
+
+        s->tarifas[s->totalTarifas++] = t;
+    }
+
+    fclose(f);
+
+    printf("Tarifas carregadas com sucesso: %d\n", s->totalTarifas);
+
+}
+
+void carregarEstacionamentosDeFicheiro(Sistema* s) {
+    FILE* f = fopen("Estacionamentos.txt", "r");
+    if (!f) {
+        printf("Houve um erro ao abrir o ficheiro.\n");
+        return;
+    }
+
+    s->totalEstacionamentos = 0;
+    Estacionamento e;
+    while (fscanf(f, "%d %s %s %d %d %d %d %f\n",
+        &e.numEntrada,
+        e.matricula,
+        e.tipoVeiculo,
+        &e.piso,
+        &e.fila,
+        &e.lugar,
+        &e.horaEntrada,
+        &e.valorPago) == 8) {
+        s->estacionamentos[s->totalEstacionamentos++] = e;
+    }
+    fclose(f);
+    printf("Estacionamentos carregados com sucesso: %d\n", s->totalEstacionamentos);
+
+}
+
 
 // Removi as funções de carregar tarifas e estacionamento. Vou converter em uma função que inicia a primeira leitura dos arquivos .atxt e depois dos arquivos em .bin [Samuel]
 
@@ -106,7 +173,6 @@ void inicializarSistema(SISTEMA* s) {
         for (f = 0; f < MAX_FILA; f++) {
             for (l = 0; l < MAX_LUGARES; l++) {
                 s->parque.mapa[a][f][l] = LUGAR_LIVRE;
-            }
         }
     }
 
@@ -130,6 +196,7 @@ void inicializarSistema(SISTEMA* s) {
         strcpy(s->estacionamentos[a].dataEntrada, "");
         strcpy(s->estacionamentos[a].horaEntrada, "");
         strcpy(s->estacionamentos[a].dataSaida, "");
+            }
         strcpy(s->estacionamentos[a].horaSaida, "");
     }
 
