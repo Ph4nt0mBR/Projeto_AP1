@@ -298,9 +298,32 @@ int registarEntradaVeiculo(Sistema* s) {
         return novo.numEntrada;
 }
 
-int atribuirLugar(int piso) {
+int atribuirLugar(Sistema* s, int piso, int* filaOut, int* lugarOut)
+{
+    //validar sistema e ponteiros
+    if (!s || !filaOut || !lugarOut)
+        return 1;
 
-    return 0;
+    //verifica validade piso
+    if (piso < 0 || piso >= s->parque.pisos)
+        return 1;
+
+    //procura primeiro lugar livre
+    for (int f = 0; f < s->parque.filasPorPiso; f++)
+    {
+        for (int l = 0; l < s->parque.lugaresPorFila; l++)
+        {
+            if (s->parque.mapa[piso][f][l] == LUGAR_LIVRE)
+            {
+                *filaOut = f;
+                *lugarOut = l;
+                return 0;   //lugar encontrado
+            }
+        }
+    }
+
+    //nenhum livre:
+    return 2;
 }
 
 void mostrarTicketEntrada(int numEntrada) {
