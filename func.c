@@ -53,7 +53,7 @@ int coordenadaValida(const Parque* p, int andar, char, filaChar, int lugar) {
 // Leituras
 //=======================================================
 
-int primeiraLeitura() // Aqui a gente vai ler os aruivos 1x, por isso q os .txt tão aqui. dps dessa leitura, o define vai ficar em estruturas.h [Samuel]
+int primeiraLeitura() // Aqui a gente vai ler os arquivos 1x, por isso q os .txt tão aqui. dps dessa leitura, o define vai ficar em estruturas.h [Samuel]
 {
 	FILE* f = NULL;
 
@@ -240,7 +240,7 @@ int registarEntradaVeiculo(Sistema* s) {
 
 
     
-    if (piso < 0 || piso >= s->parque.pisos) { //validacao piso
+    if (piso < 0 || piso >= s->parque.pisos) { //validação piso
         printf("Piso inválido!
             ");
             return -1;
