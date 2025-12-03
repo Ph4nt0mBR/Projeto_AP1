@@ -347,11 +347,28 @@ void mostrarTicketSaida(int numEntrada) {
 
 }
 
-void alterarSaida(int numEntrada) {
+void alterarSaida(int numEntrada) {                                          //Objetivo: Alterar a hora registada de saída de um veículo
+    if (numEntrada < 0 || parqueRegisto[numEntrada].ativo == 1) {            //numEntrada → índice/registo do veículo no parque
+        printf("Erro: Veiculo ainda no parque ou ID invalido!\n");
+        return;
+    }
+
+    printf("Nova hora de saida (hh mm): ");
+    scanf("%d %d", &parqueRegisto[numEntrada].saida.hora,
+                   &parqueRegisto[numEntrada].saida.minuto);
+
+    printf("Saida alterada com sucesso!\n");
 
 }
 
-void anularSaida(int numEntrada) {
+
+}
+
+void anularSaida(int numEntrada) {                                   
+    if (numEntrada < 0) return;                                      //O veiculo ja deve ter saida registada (ativo == 0)
+                                                                     //Se for inválido, a função não faz
+    parqueRegisto[numEntrada].ativo = 1;
+    printf("Saida anulada!\n");
 
 }
 
