@@ -1,13 +1,19 @@
 #ifndef funcoes.h
 #define funcoes.h
 
+#include "estruturas.h" // Adicionei estas biblios pois n achei em nenhum outro lugar  __Lu >:3
+
+
 //-----------------------------------------------
 //  Inicialização e carregamento de dados
 //-----------------------------------------------
 void configurarParque(); 
-void carregarTarifasDeFicheiro();
+void carregarTarifasDeFicheiro();        //__Lu >:3
 void carregarEstacionamentosDeFicheiro();
 void inicializarSistema();
+
+
+
 
 //-----------------------------------------------
 //  Menus
@@ -80,3 +86,8 @@ void gerarTabelaDinamica();
 void gerarCSV();
 
 #endif /* funcoes.h */
+
+
+
+
+

@@ -300,29 +300,43 @@ int registarEntradaVeiculo(Sistema* s) {
 
 int atribuirLugar(Sistema* s, int piso, int* filaOut, int* lugarOut)
 {
-    //validar sistema e ponteiros
-    if (!s || !filaOut || !lugarOut)
-        return 1;
+    //valida entradas
+    if (s == NULL || filaOut == NULL || lugarOut == NULL)
+		return 1;
 
     //verifica validade piso
     if (piso < 0 || piso >= s->parque.pisos)
-        return 1;
+        return 1; //caso o piso seja invalido return 1
 
-    //procura primeiro lugar livre
-    for (int f = 0; f < s->parque.filasPorPiso; f++)
-    {
-        for (int l = 0; l < s->parque.lugaresPorFila; l++)
-        {
-            if (s->parque.mapa[piso][f][l] == LUGAR_LIVRE)
-            {
-                *filaOut = f;
-                *lugarOut = l;
-                return 0;   //lugar encontrado
+	const int filas = s->parque.filasPorPiso;
+    const int lugares = s->parque.LugaresPorFila;
+
+    if (filas <= 0 || lugares <= 0) {
+        fprintf(stderr, "Nao tem capacidade definida: (filas = %d, lugares = %d", filas, lugares);
+
+
+        return 2;
+    }
+
+    static int ultimoFilaPorPiso[MAX_PISO] = { 0 };
+    static int ultimoLugarPorPiso[MAX_PISO] = { 0 };
+    int startFila = ultimoFilaPorPiso[piso] % filas;
+    int startLugar = ultimoLugarPorPiso[piso] % lugares;
+
+    for (int offsetF = 0; offsetF < filas; ++offsetF) { //tenta usar o primeiro lugar a partir do ultimo ponto
+		int f = (startFila + offsetF) % filas;
+
+        for (int l = startLugar; l < lugares, ++l) { //percorre startLugar ate ao fim
+            if (s->parque.mapa[piso][f][l] == LUGAR_LIVRE) {
+                *filaOut = f; //devolve a fila encontrada
+				*lugarOut = l; //devolve o lugar encontrado
+                return 0;
             }
         }
     }
 
-    //nenhum livre:
+    //caso nenhum livre:
+    fprintf(stderr, "Nenhum lugar disponivel"); //imprime o erro
     return 2;
 }
 
