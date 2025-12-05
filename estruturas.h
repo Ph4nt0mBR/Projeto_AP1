@@ -13,8 +13,8 @@
 
 #define	_CRT_SECURE_NO_WARNINGS
 
-#ifndef estruturas.h
-#define estruturas.h
+#ifndef estruturas_h
+#define estruturas_h
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -29,7 +29,6 @@
 #define MAX_ANDAR 5
 #define MAX_FILA 26 // De A a Z
 #define MAX_LUGARES 50
-
 #define MAX_TARIFAS 10 // Limite máximo de planos de tarifas com margem [Samuel]
 
 
@@ -63,12 +62,12 @@ typedef struct parque {		// Config da matriz do estacionamento
 	int filasPorPiso;	// Numero de filas por piso (max 26)
 	int lugaresPorFila;	// Numero de lugares por fila (max 50)
 
-	EstadoLugar mapa[MAX_ANDAR][MAX_FILA][MAX_LUGARES]; // Matriz que representa o estacionamento
+	EstadoLugar mapa[MAX_ANDAR][MAX_FILA][MAX_LUGARES]; // Matriz que representa o estacionamento -- O enum serve mais para facilitar a leitura do estado do lugar antes do carro entrar ou sair
 } PARQUE;
 
 typedef struct parametro_estacionamento {		//Informações dos veículos estacionados
 	int id;
-	char matricula[10];
+	char matricula[11];
 	char dataEntrada[11]; /* dd/mm/aaaa */
 	char horaEntrada[6];  /* hh:mm */
 	char dataSaida[11];   /* dd/mm/aaaa */
@@ -81,16 +80,7 @@ typedef struct parametro_estacionamento {		//Informações dos veículos estacio
 	EstadoLugar estado;		//LUGAR_LIVRE ou LUGAR_OCUPADO
 } VAGAS;
 
-typedef struct tarifas {
-	float valor_T1;
-	float valor_T2;
-	float valor_T3;
-	float valor_T4;
-} TARIFA_AGRUPADA; 
-
 typedef struct tarifario{
-	TipoTarifa tipo;	//tipo de tarifa (hora ou dia)
-	CodigoTarifa codigo;//codigo da tarifa (T1, T2, T3, T4)
 	float valor;		//valor da tarifa
 	char etiqueta[10];	//etiqueta da tarifa (ex: normal, especial, etc)
 } TARIFARIO;
@@ -98,15 +88,12 @@ typedef struct tarifario{
 typedef struct sistema {
 	PARQUE parque;
 
-	TARIFA_AGRUPADA tarifasBase;
 	TARIFARIO tarifas[MAX_TARIFAS];
 	int totalTarifas;
 
-	REGISTRO_ESTACIONAMENTO estacionamentos[MAX_ESTACIONAMENTOS];
 	int totalEstacionamentos;
 
 	int ultimoNumEntrada;
-
 } SISTEMA; //tenho de rever esta struct -- Já ta revisada [Samuel]
 
 
@@ -119,4 +106,4 @@ ResultadoLeitura leituraConstante(SISTEMA* s);
 void inicializarSistema(SISTEMA* s);
 void configurarParque(PARQUE* p);
 
-#endif /* estruturas.h */
+#endif /* estruturas_h */
