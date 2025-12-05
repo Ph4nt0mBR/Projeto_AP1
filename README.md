@@ -40,57 +40,58 @@ só sendo considerada esta tarifa se o número de passagens de dia forem >=2;
 
 7. O valor das tarifas estão em tarifas.txt
 
+	----------------		
+	FUNCIONALIDADES:         
 	----------------
-	FUNCIONALIDADES:
-	----------------
 
-1.Primeira execução {
-
-	[] O usuário vai definir as dimensões do estacionamento (X, Y, Z)
-
-	[] Ler os ficheiros tarifas.txt e estacionamentos.txt
-
-	[] Certificar de que outros dados importantes para a execução do programa estão guardados na memória (ex: numeração dos registros de estacionamento, etc)
-}
-
-2.Segunda execução e seguintes {
-
-	[] Ler os ficheiros préviamente lidos mas em uma estrutura de dados conveniente (Possivelmente será utilizado uma .bin para guardar os dados em binário)
-
-}
-
-3.Estrutura de Menu {
-
-	- Estruturas do menu{
-
-		[] Entrada veículo
-
-		[] Consultar ocupações - Pesquisa feita a partir do númedo do ticket de entrada
-
-		[] Saída veículo + Cobrança - Pesquisa feita a partir do númedo do ticket de entrada
-
-		[] 
-		}
-
-	[] A informação de lugares disponíveis por piso deve estar sempre visível
-
-}
-
-4.Registros {
-
-	[] Registro de entrada {
+1. Na fase de “instalação” da aplicação, ativável através de um qualquer mecanismo que considerarem mais adequado:
+    a) atendendo à topologia do parque de estacionamento, deverá ser especificado qual o número de andares, filas e lugares por fila do parque de estacionamento;
+    b) ainda durante a fase de inicialização da aplicação, deverão ser lidos os ficheiros fornecidos:
+		a) Tarifas.txt e guardar os seus dados em memória, devendo ser inserido no dado estruturado apropriado (atendendo à informação disponibilizada acima, sobre as tarifas);
 		
-		[] Saída no ecrã semelhante a um "Ticket de estacionamento"
+		b) Estacionamentos.txt, onde cada linha contém os dados correspondentes a um registo de estacionamento, que deve ser inserido no dado estruturado conveniente, já com o 	
+		valor pago calculado (devendo, para isso, ir ler o valor já disponível no dado estruturado em memória), se os veículos já tiverem saído do parque de estacionamento;
 
-		[] Apresentar toda a informação disponível no momento (Horário de entrada, Coordenadas x, y, z da vaga ocupada)
+	  Obs. Atenção que algumas das linhas do ficheiro (correspondentes a registos de estacionamento), ainda não têm a hora de saída, pelo que se considerará, para esses casos, que 
+	   os veículos ainda estão no parque e, assim, devem ser considerados em termos da ocupação do parque de estacionamento;
+			
+	c) como haverá outros dados importantes para o funcionamento do sistema (p. ex., numeração dos registos de estacionamentos e outros), deve ser também levado em consideração 
+	   que estes deverão ser guardados em memória.
 
-		[] Alterar estado da vaga de disponível para ocupado - Também altera a apresentação no Menu
-	}
+2. Aquando da utilização “normal” da aplicação, ao arrancar, devem ser lidos os ficheiros de dados gravados na utilização anterior da aplicação, carregando-os para dados simples ou 
+   estruturados, utilizando estruturas de dados convenientes (desejavelmente, aquelas que foram usadas na utilização anterior da aplicação).
 
-	[] Registro de saída {
+3. Criar uma estrutura de menus adequada, devendo estar sempre visível, em qualquer menu que seja apresentado ao utilizador, a informação quanto ao número de lugares disponíveis em 
+   cada piso.
+
+4.	a) Permitir o registo da entrada de cada veículo, atribuindo o lugar e mostrando-o ao condutor, não devendo ser esquecido que, a cada entrada, deve ser atualizado o estado do 
+	parque de estacionamento e mostrar, no ecrã, algo semelhante a um ticket de estacionamento, com toda a informação disponível no momento, relativa ao estacionamento;
 	
-		[] Mesmas condições da entrada 
-	}
-}
+	b) Deve ser possível também a consulta, eliminação ou alteração de um qualquer registo de estacionamento, especificando-se o respetivo número de entrada (se alterado o 
+	estacionamento, deve ser igualmente mostrado o novo “ticket”).
 
-Por hora trabalhar com isso.
+5. Quanto à atribuição do lugar, ele deve ser efetuado, atendendo àquele que estiver mais perto do A01 do piso em que o automobilista tiver entrado ou, utilizando uma qualquer 
+outra política, que deve ser explicada e justificada.
+
+6. Registar a saída do veículo, efetuando os cálculos do valor a pagar e atualizações consideradas necessárias, devendo poder efetuar-se a sua alteração ou anulação.
+
+7.	a) Poder especificar lugares não disponíveis, indicando-se e registando-se o motivo (um caracter), que poderá ser: condições inadequadas (i); objeto de obras (o); 
+    estar reservado (r); outros motivos (m);
+	b) Poder reverter-se esta situação.
+
+8. Mostrar um mapa de ocupação de um piso do parque de estacionamento, em qualquer momento, da forma mais explícita possível: um lugar ocupado deverá ser assinalado por um X, 
+um lugar livre por um “-“ e um lugar indisponível, pela letra específica do motivo.
+
+9. Assegurar a persistência dos dados existentes em memória, utilizando para o efeito ficheiros binários, sempre que o utilizador assim o entender e, obrigatoriamente, 
+ao sair da aplicação, não devendo esquecer-se a atualização de outros ficheiros que tenham sido igualmente criados e utilizados para guardar outra informação importante e que terá 
+sido carregada em memória, aquando do arranque da aplicação (neste caso, poderão ser guardados em ficheiros tipo txt), pois os dados que contêm poderão ser conhecidos com facilidade e, 
+eventualmente, alterados, se for necessário.
+
+10. Para as diversas listagens a desenvolver, dada a potencial elevada quantidade de informação a apresentar, deve implementar-se um mecanismo de avanço página a página. Adicionalmente, 
+poderá ser implementado, neste caso particular e.g.: a) permitir o retrocesso para a página anterior; b) mostrar uma dada página, a especificar pelo utilizador, c) ou mostrar a última. 
+No caso de alguma destas funcionalidade adicionais serem implementadas, haverá lugar a uma sobrevalorização.
+
+Outra funcionalidade que deve ser oferecida é a possibilidade de gravar a listagem em ficheiro de texto .txt com o cabeçalho conveniente, assim podendo, depois, ser lida, facilmente, 
+com um simples editor de texto. O nome do ficheiro .txt deve poder ser especificado pelo utilizador.
+
+11. Devem ainda ser criadas mais 3 funcionalidades, à escolha, que devem, incluir pelo menos uma listagem e obviamente, ser descritas de forma clara.
