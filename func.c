@@ -72,14 +72,44 @@ void configurarParque(Parque* p) {
         return;
     }
 
-    while(1){
-		printf("Numero de pisos (1-%d): ", MAX_PISO);
-        if scanf("%d", &p->pisos) == 1 && p->pisos >= 1 && p->pisos <= MAX_PISO) {
-            break;
-		}
+    while (1) {
+        printf("Numero de pisos (1-%d): ", MAX_PISO);
+        if scanf("%d", &p->pisos) == 1 && p->pisos >= 1 && p->pisos <= MAX_PISO) { //verifica se e valido
+            break; //break para sair do while
+        }
+        fprintf(stderr, "Valor invalido, tente novamente.\n");
+    }
+
+    while (1) {
+        printf("Numero de filas por piso (1-%d): ", MAX_FILA);
+        if scanf("%d", &p->filasPorPiso) == 1 && p->filasPorPiso >= 1 && p->filasPorPiso <= MAX_FILA) { //verifica se e valido
+            break; //break para sair do while
+        }
+        fprintf(stderr, "Valor invalido, tente novamente.\n");
+    }
+
+    while (1) {
+        printf("Numero de lugares por fila (1-%d): ", MAX_LUGARES);
+        if scanf("%d", &p->lugaresPorPiso) == 1 && p->lugaresPorPiso >= 1 && p->lugaresPorPiso <= MAX_LUGARES) { //verifica se e valido
+            break; //break para sair do while
+        }
+        fprintf(stderr, "Valor invalido, tente novamente.\n");
+    }
 
 
-        //Nao mexam nisto
+    for (int a = 0; a < MAX_PISO; a++) {
+        for (int f = 0; f < MAX_FILA; f++) {
+            for (int l = 0; l < MAX_LUGARES; l++) { //percorre todos os pisos filas e lugares
+                if (a < p->pisos && f < p->filasPorPiso && l < p->lugaresPorFila) {
+                    p->mapa[a][f][l] = LUGAR_LIVRE;
+                }
+                else {
+                    p->mapa[a][f][l] = LUGAR_INDISPONIVEL;
+                } //Verifica se o lugar existe e marca como livre ou indisponivel   
+
+            }
+        }
+    }
 }
 
 void carregarTarifasDeFicheiro(Sistema* s) {
