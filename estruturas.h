@@ -26,7 +26,7 @@
 //		DEFINIÇÕES
 //==========================================
 
-#define MAX_ANDAR 5
+#define MAX_PISO 5
 #define MAX_FILA 26 // De A a Z
 #define MAX_LUGARES 50
 #define MAX_TARIFAS 10 // Limite máximo de planos de tarifas com margem [Samuel]
@@ -62,7 +62,7 @@ typedef struct parque {		// Config da matriz do estacionamento
 	int filasPorPiso;	// Numero de filas por piso (max 26)
 	int lugaresPorFila;	// Numero de lugares por fila (max 50)
 
-	EstadoLugar mapa[MAX_ANDAR][MAX_FILA][MAX_LUGARES]; // Matriz que representa o estacionamento -- O enum serve mais para facilitar a leitura do estado do lugar antes do carro entrar ou sair
+	EstadoLugar mapa[MAX_PISO][MAX_FILA][MAX_LUGARES]; // Matriz que representa o estacionamento -- O enum serve mais para facilitar a leitura do estado do lugar antes do carro entrar ou sair
 } PARQUE;
 
 typedef struct parametro_estacionamento {		//Informações dos veículos estacionados
@@ -73,7 +73,7 @@ typedef struct parametro_estacionamento {		//Informações dos veículos estacio
 	char dataSaida[11];   /* dd/mm/aaaa */
 	char horaSaida[6];    /* hh:mm */
 
-	int andar; // de 0 a MAX_ANDAR-1
+	int andar; // de 0 a MAX_PISO-1
 	char fila; // de A = 0 a z = MAX_FILA-1
 	int lugar; // de 0 a MAX_LUGARES-1
 

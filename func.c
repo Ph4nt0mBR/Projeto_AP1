@@ -65,25 +65,22 @@ int primeiraLeitura() // Aqui a gente vai ler os arquivos 1x, por isso q os .txt
 //----------------------------------------------------
 // Inicialização e carregamento de dados
 //----------------------------------------------------
-void configurarParque(Parque* p) {    //eu amanha documento isto melhor maltinha. (bruno)
+void configurarParque(Parque* p) {
+
+    if (p == NULL) {
+        printf(stderr, "Erro, ponteiro nulo.\n");
+        return;
+    }
+
+    while(1){
+		printf("Numero de pisos (1-%d): ", MAX_PISO);
+        if scanf("%d", &p->pisos) == 1 && p->pisos >= 1 && p->pisos <= MAX_PISO) {
+            break;
+		}
 
 
-    do {
-        printf("Tamanho de pisos(1-5):\n");
-        scanf("%d", &p->pisos);
-
-    } while (p->pisos<1 || p->pisos > MAX_PISOS); //verifica se o numero de pisos e valido(maior q um, menor q 5
-    do {
-        printf("Numero de filas por piso (1-26): \n");
-        scanf("%d", &p->filasPorPiso);
-    } while (p->filasPorPiso < 1 || p->filasPorPiso > MAX_FILAS);
-
-    do {
-        printf("Numero de lugares por cada fila(1-50):\n");
-        scanf("%d", &p->lugaresPorFila);
-    } (p->lugaresPorFila < 1 || p->lugaresPorFila > MAX_LUGARES);
-
-} //acho q thats it. qualquer cena volta se ca no troublleshoot
+        //Nao mexam nisto
+}
 
 void carregarTarifasDeFicheiro(Sistema* s) {
     FILE* f = fopen("Tarifario.txt", "r");
@@ -323,20 +320,32 @@ int atribuirLugar(Sistema* s, int piso, int* filaOut, int* lugarOut)
     int startFila = ultimoFilaPorPiso[piso] % filas;
     int startLugar = ultimoLugarPorPiso[piso] % lugares;
 
-    for (int offsetF = 0; offsetF < filas; ++offsetF) { //tenta usar o primeiro lugar a partir do ultimo ponto
-		int f = (startFila + offsetF) % filas;
+    for (int offsetF = 0; offsetF < filas; ++offsetF) {
+        int f = (startFila + offsetF) % filas;
 
-        for (int l = startLugar; l < lugares, ++l) { //percorre startLugar ate ao fim
+        // Varre de startLugar ao fim
+        for (int l = startLugar; l < lugares; ++l) {
             if (s->parque.mapa[piso][f][l] == LUGAR_LIVRE) {
-                *filaOut = f; //devolve a fila encontrada
-				*lugarOut = l; //devolve o lugar encontrado
+                *filaOut = f;
+                *lugarOut = l;
+                ultimoFilaPorPiso[piso] = f;
+                ultimoLugarPorPiso[piso] = (l + 1) % lugares;
+                return 0;
+            }
+        }
+        // Varre do inicio até startLugar-1
+        for (int l = 0; l < startLugar; ++l) {
+            if (s->parque.mapa[piso][f][l] == LUGAR_LIVRE) {
+                *filaOut = f;
+                *lugarOut = l;
+                ultimoFilaPorPiso[piso] = f;
+                ultimoLugarPorPiso[piso] = (l + 1) % lugares;
                 return 0;
             }
         }
     }
 
-    //caso nenhum livre:
-    fprintf(stderr, "Nenhum lugar disponivel"); //imprime o erro
+    fprintf(stderr, "Nenhum lugar disponivel.\n");
     return 2;
 }
 
