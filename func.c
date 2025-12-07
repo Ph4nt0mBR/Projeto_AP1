@@ -9,6 +9,11 @@
 */
 
 // Incluido a estruturas.h, e os outros includes estão lá
+
+
+
+
+
 #include "estruturas.h" // -- Não precisa incluir stdio.h aqui, já está em estruturas.h [Samuel]
 
 // Para definir aonde os .txt estão
@@ -112,46 +117,65 @@ void configurarParque(Parque* p) {
     }
 }
 
-void carregarTarifasDeFicheiro(Sistema* s) {
-    FILE* f = fopen("Tarifario.txt", "r");
-    if (!f) {
-        printf("Erro ao abrir o ficheito Tarefario.txt.\n");
-        return;
+void carregarTarifasDeFicheiro(SISTEMA* s)
+{
+	//verifica se o sistema e valido
+    if (s == NULL) {
+        fprintf(stderr, "Erro: sistema nulo.\n\n");
+        return; //se nao for, nao carrega
+
+    }
+
+	FILE* f = abrirArquivoTexto(TARIFAS_PATH, "r"); //abre o arquivo de tarifas em read only
+    if (!f) { 
+        return; //se falhar a abrir, sai
     }
 
     s->totalTarifas = 0;
 
-    char tipo;
-    char codigo[10];
-    char hInf[10];
-    char hSup[10];
-    char valorStr[20];
+    char linha[256];
+	while (fgets(linha, sizeof(linha), f) != NULL) { //le todas as linhas do arquivo
+        //ignora linhas em branco
+        if (linha[0] == '\0' || linha[0] == '\n')
+            continue;
 
-    while (fscanf(f, " %c %s %s %s %s", &tipo, codigo, hInf, hSup, valorStr) == 5)
-    {
+		//etiqueta e valor (tirados do tarifas.txt)
+        char valorStr[32] = { 0 };
+        char etiqueta[16] = { 0 };
 
-        Tarifario t;
-        t.tipoTarifa = tipo;
-        strcpy(t.codigo, codigo);
+		if (sscanf(linha, "%15s %31s", etiqueta, valorStr) != 2) { //separa os dois valores diferentes, etiqueta e valor
+			fprintf(stderr, "Linha de tarifa invalida: %s\n", linha); //mensagem de erro caso a linha nao esteja no formato correto
+            continue; //passa pra a proxima linha
+        }
 
-        int hora, min;
+        //vai converter a string para um float
+        char* endptr = NULL;
+        float valor = strtof(valorStr, &endptr);
 
-        sscanf(hInf, "%d:%d", &hora, &min);
-        t.horaInf = hora * 100 + min;
+		if (endptr == valorStr) { //verifica se o strtof falhou (strtof é o que converte string para float)
+            fprintf(stderr, "Valor de tarifa invalido: %s", linha);
+            continue;
 
-        sscanf(hSup, "%d:%d", &hora, &min);
-        t.horaInf = hora * 100 + min;
-        valorStr[strcspn(valorStr, "€")] = "\0";
+        }
 
-        t.valor = atof(valorStr);
+		//mensagem de erro se passar do maximo
+        if (s->totalTarifas >= MAX_TARIFAS) {
+            fprintf(stderr, "Limite MAX_TARIFAS atingido. Ignorando restante.\n");
+            break;
+        }
+
+        //guarda
+        TARIFARIO t;
+        t.valor = valor;
+        //garante que a string termina em nulk
+        strncpy(t.etiqueta, etiqueta, sizeof(t.etiqueta) - 1);
+        t.etiqueta[sizeof(t.etiqueta) - 1] = '\0';
 
         s->tarifas[s->totalTarifas++] = t;
     }
 
     fclose(f);
-
     printf("Tarifas carregadas com sucesso: %d\n", s->totalTarifas);
-
 }
 
 void carregarEstacionamentosDeFicheiro(Sistema* s) {
