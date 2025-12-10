@@ -9,8 +9,8 @@
 
 #define _CRT_SECURE_NO_WARNINGS
 
-#ifndef menu.h
-#define menu.h
+#ifndef menu_h
+#define menu_h
 #include <stdio.h>
 #include <stdlib.h>
 #include <locale.h>
@@ -33,4 +33,4 @@ void gravarDados();
 
 
 
-#endif /* menu.h */
+#endif /* menu_h */
