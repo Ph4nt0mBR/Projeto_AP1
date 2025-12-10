@@ -73,13 +73,13 @@ int primeiraLeitura() // Aqui a gente vai ler os arquivos 1x, por isso q os .txt
 void configurarParque(Parque* p) {
 
     if (p == NULL) {
-        printf(stderr, "Erro, ponteiro nulo.\n");
+        fprintf(stderr, "Erro, ponteiro nulo.\n");
         return;
     }
 
     while (1) {
         printf("Numero de pisos (1-%d): ", MAX_PISO);
-        if scanf("%d", &p->pisos) == 1 && p->pisos >= 1 && p->pisos <= MAX_PISO) { //verifica se e valido
+        if (scanf("%d", &p->pisos) == 1 && p->pisos >= 1 && p->pisos <= MAX_PISO) { //verifica se e valido
             break; //break para sair do while
         }
         fprintf(stderr, "Valor invalido, tente novamente.\n");
@@ -87,7 +87,7 @@ void configurarParque(Parque* p) {
 
     while (1) {
         printf("Numero de filas por piso (1-%d): ", MAX_FILA);
-        if scanf("%d", &p->filasPorPiso) == 1 && p->filasPorPiso >= 1 && p->filasPorPiso <= MAX_FILA) { //verifica se e valido
+        if (scanf("%d", &p->filasPorPiso) == 1 && p->filasPorPiso >= 1 && p->filasPorPiso <= MAX_FILA) { //verifica se e valido
             break; //break para sair do while
         }
         fprintf(stderr, "Valor invalido, tente novamente.\n");
@@ -95,7 +95,7 @@ void configurarParque(Parque* p) {
 
     while (1) {
         printf("Numero de lugares por fila (1-%d): ", MAX_LUGARES);
-        if scanf("%d", &p->lugaresPorPiso) == 1 && p->lugaresPorPiso >= 1 && p->lugaresPorPiso <= MAX_LUGARES) { //verifica se e valido
+        if (scanf("%d", &p->lugaresPorFila) == 1 && p->lugaresPorFila >= 1 && p->lugaresPorFila <= MAX_LUGARES) { //verifica se e valido
             break; //break para sair do while
         }
         fprintf(stderr, "Valor invalido, tente novamente.\n");
