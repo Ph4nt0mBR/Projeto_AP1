@@ -29,7 +29,7 @@
 void trimTexto(char* s) { //Remove espaços em branco no final de uma string
 	
 	if (!s) return;
-    stze_t n = strlen(s);
+    size_t n = strlen(s);
     while (n > 0 && (s[n-1] == '\n' || s[n-1] == '\r' || s[n-1] == ' ' || s[n-1] == '\t')) {
         s[--n] = '\0';
 	}
@@ -178,7 +178,7 @@ void carregarTarifasDeFicheiro(SISTEMA* s)
     printf("Tarifas carregadas com sucesso: %d\n", s->totalTarifas);
 }
 
-void carregarEstacionamentosDeFicheiro(Sistema* s) {
+void carregarEstacionamentosDeFicheiro(SISTEMA* s) {
     FILE* f = fopen("Estacionamentos.txt", "r");
     if (!f) {
         printf("Houve um erro ao abrir o ficheiro.\n");
@@ -220,10 +220,11 @@ void inicializarSistema(SISTEMA* s) {
     s->parque.lugaresPorFila = 1;
 
     //inicializar matriz do parque: todos os lugares livres
-    for (a = 0; a < MAX_ANDAR; a++) {
+    for (a = 0; a < MAX_PISO; a++) {
         for (f = 0; f < MAX_FILA; f++) {
             for (l = 0; l < MAX_LUGARES; l++) {
                 s->parque.mapa[a][f][l] = LUGAR_LIVRE;
+            }
         }
     }
 
