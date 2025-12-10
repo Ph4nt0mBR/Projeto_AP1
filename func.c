@@ -135,7 +135,7 @@ void carregarTarifasDeFicheiro(SISTEMA* s)
 
     char linha[256];
 	while (fgets(linha, sizeof(linha), f) != NULL) { //le todas as linhas do arquivo
-        //ignora linhas em branco
+        //ignora linhas em branco↓
         if (linha[0] == '\0' || linha[0] == '\n')
             continue;
 
@@ -179,7 +179,14 @@ void carregarTarifasDeFicheiro(SISTEMA* s)
 }
 
 void carregarEstacionamentosDeFicheiro(SISTEMA* s) {
-    FILE* f = fopen("Estacionamentos.txt", "r");
+    
+    //verifica se o sistema e valido
+    if (s == NULL) {
+        fprintf(stderr, "Erro: sistema nulo.\n\n");
+        return; //se nao for, nao carrega
+
+    }
+    FILE* f = abrirArquivoTexto("estacionamentos.txt", "r");
     if (!f) {
         printf("Houve um erro ao abrir o ficheiro.\n");
         return;
@@ -196,7 +203,12 @@ void carregarEstacionamentosDeFicheiro(SISTEMA* s) {
         &e.lugar,
         &e.horaEntrada,
         &e.valorPago) == 8) {
-        s->estacionamentos[s->totalEstacionamentos++] = e;
+        if (s->totalEstacionamentos >= MAX_ESTACIONAMENTOS) {
+            fprintf(stderr, "Limite MAX_ESTACIONAMENTOS ultrapassado.\n");
+            break;
+
+        }
+        s->estacionamentos[s->totalEstacionamentos++] = e; //// adiciona 'e' na posição atual e incrementa o counter
     }
     fclose(f);
     printf("Estacionamentos carregados com sucesso: %d\n", s->totalEstacionamentos);
