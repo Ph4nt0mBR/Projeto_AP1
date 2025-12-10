@@ -66,3 +66,5 @@ mostrarMenuPrincipal() {    //troquei o nome pq ja tem um int main no main.c __L
 
    return 0;
 }
+
+//Adicionar depois Arrays pra representar as vagas,  LOOP pra manter o menu disponivel para o usuario e structs pra guardar informaçoes dos veiculos __ Lu
