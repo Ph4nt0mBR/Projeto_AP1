@@ -45,8 +45,8 @@ FILE* abrirArquivoTexto(const char* caminho, const char* modo) {
 	return f;
 }
 
-int coordenadaValida(const PARQUE* p, int andar, char, filaChar, int lugar) {
-    
+int coordenadaValida(const PARQUE* p, int andar, char, char filaChar, int lugar) {
+
     if (!p) {
         return 0;
     }
@@ -54,23 +54,25 @@ int coordenadaValida(const PARQUE* p, int andar, char, filaChar, int lugar) {
         return 0;
     }
 
-	//cinverte para indice numérico
+    //cinverte para indice numérico
     int filaIdx = -1;
-    if (filaChar >= 'A' && filachar <= 'Z') {
+    if (filaChar >= 'A' && filaChar <= 'Z') {
         filaIdx = filaChar - 'A';
-    } else if (filaChar >= 'a' && filaChar <= 'z') {
+    }
+    else if (filaChar >= 'a' && filaChar <= 'z') {
         filaIdx = filaChar - 'a';
-    } else {
+    }
+    else {
         return 0;
-	}
+    }
     //verifica se fila e valida↓
     if (filaIdx < 0 || filaIdx >= p->filasPorPiso) {
         return 0;
-	}//verifica se lugar e valido↓
-    if(lugar < 0 || lugar >= p->lugaresPorFila) {
+    }//verifica se lugar e valido↓
+    if (lugar < 0 || lugar >= p->lugaresPorFila) {
         return 0;
     }
-	return 1; //todas as coordenadas sao validas
+    return 1; //todas as coordenadas sao validas
 
 } //fiz isto as 02:21 da manha, se estiver uma porcaria avisem. vou mas e pra cama -Bruno-
 
@@ -91,7 +93,7 @@ int primeiraLeitura() // Aqui a gente vai ler os arquivos 1x, por isso q os .txt
 //----------------------------------------------------
 // Inicialização e carregamento de dados
 //----------------------------------------------------
-void configurarParque(Parque* p) {
+void configurarParque(PARQUE* p) {
 
     if (p == NULL) {
         fprintf(stderr, "Erro, ponteiro nulo.\n");
