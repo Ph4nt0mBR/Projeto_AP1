@@ -45,13 +45,34 @@ FILE* abrirArquivoTexto(const char* caminho, const char* modo) {
 	return f;
 }
 
-int coordenadaValida(const Parque* p, int andar, char, filaChar, int lugar) {
+int coordenadaValida(const PARQUE* p, int andar, char, filaChar, int lugar) {
     
-    if (!p) return 0;
-    if (andar < 0 || andar >= p->pisos) return 0;
+    if (!p) {
+        return 0;
+    }
+    if (andar < 0 || andar >= p->pisos) {
+        return 0;
+    }
 
+	//cinverte para indice numérico
+    int filaIdx = -1;
+    if (filaChar >= 'A' && filachar <= 'Z') {
+        filaIdx = filaChar - 'A';
+    } else if (filaChar >= 'a' && filaChar <= 'z') {
+        filaIdx = filaChar - 'a';
+    } else {
+        return 0;
+	}
+    //verifica se fila e valida↓
+    if (filaIdx < 0 || filaIdx >= p->filasPorPiso) {
+        return 0;
+	}//verifica se lugar e valido↓
+    if(lugar < 0 || lugar >= p->lugaresPorFila) {
+        return 0;
+    }
+	return 1; //todas as coordenadas sao validas
 
-}
+} //fiz isto as 02:21 da manha, se estiver uma porcaria avisem. vou mas e pra cama -Bruno-
 
 
 //=======================================================
