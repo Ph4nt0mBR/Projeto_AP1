@@ -13,7 +13,7 @@
   #include <windows.h> 
 #endif
 
-#include <stdio.h>
+#include <stdio.h>          // A maioria desses includes tão nas .h. N precisa repetir aqui [Samuel]
 #include <stdlib.h>
 #include <locale.h>
 #include <signal.h>
@@ -26,7 +26,7 @@
 static volatile sig_atomic_t sinal_saida = 0;
 
 /* Tenta definir locale para Português com vários nomes conhecidos.  */
-static void definir_locale_portugues(void) {
+static void definir_locale_portugues(void) {        //Eu acho q isso daqui é meio exagerado. Acho q pode só colocar o setlocale dentro do main [Samuel]
     const char *opcoes[] = {
         "pt_PT.UTF-8",
         "pt_PT",
@@ -53,7 +53,7 @@ static void handler_sigint(int signo) {
 /* Função que tenta persistir os dados relevantes antes do encerramento (Requisito 9). */
 /* Recebe agora o ponteiro para a estrutura principal SISTEMA. */
 static void salvar_e_encerrar(SISTEMA* s) {
-    printf("\nA gravar dados e a encerrar a aplicação...\n");
+	printf("\nA gravar dados e a encerrar a aplicação...\n");       // Esse tipo de função tem q estar no func.c [Samuel]
     
     // 1. Gravar dados principais em BINÁRIO (Obrigatório, Requisito 9)
     // Assume que esta função guarda a estrutura SISTEMA completa ou os arrays dinâmicos.

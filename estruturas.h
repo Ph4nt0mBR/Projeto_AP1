@@ -20,6 +20,7 @@
 #include <stdlib.h>
 #include <locale.h>
 #include <string.h>
+#include <ctype.h>
 
 
 //==========================================
@@ -67,11 +68,11 @@ typedef struct parque {		// Config da matriz do estacionamento
 
 typedef struct parametro_estacionamento {		//Informações dos veículos estacionados
 	int id;
-	char matricula[11];
-	char dataEntrada[11]; /* dd/mm/aaaa */
-	char horaEntrada[6];  /* hh:mm */
-	char dataSaida[11];   /* dd/mm/aaaa */
-	char horaSaida[6];    /* hh:mm */
+	char matricula[11];		/* Padrão europeu */
+	char dataEntrada[11];	/* dd/mm/aaaa */
+	char horaEntrada[6];	/* hh:mm */
+	char dataSaida[11];		/* dd/mm/aaaa */
+	char horaSaida[6];		/* hh:mm */
 
 	int andar; // de 0 a MAX_PISO-1
 	char fila; // de A = 0 a z = MAX_FILA-1

@@ -35,7 +35,7 @@ mostrarMenuPrincipal() {    //troquei o nome pq ja tem um int main no main.c __L
         printf("5 - Mapa de ocupão por piso\n");
         printf("6 - Listagens com paginação\n");
         printf("7 - Extras (Graficos / CSV / tavelas)\n");
-        printf("8 - Gravar dados\n");
+		printf("8 - Gravar dados\n");       //<-- Concordo q tem q ter isso, mas tbm tem q ter a func no (9 - sair) pq tem q salvar antes de sair [Samuel]
         printf("9 - Sair\n");
         printf("======================\n");
         printf("Opção: ");

@@ -46,45 +46,107 @@ FILE* abrirArquivo(const char* caminho, const char* modo) {     //Função pra a
 	return file;
 }
 
+int colunaChar_Indice(char letraParaNum) { // Converte os char pra int
+    letraParaNum = toupper(letraParaNum);
+    if (letraParaNum >= 'A' && letraParaNum <= 'Z') {
+        return letraParaNum - 'A';
+    }
+    return - 1; // Retorna -1 se o caractere não for válido -- honestamente eu n entendi mt bem qual a diferença entre -1 e null, mas oh well [Samuel]
+}
+
+char colunaIndice_Char(const PARQUE* p, int intParaChar) {
+    int limite = p ? p->filasPorPiso : MAX_FILA; //verifica se p e nulo, se for usa o maximo
+    if (intParaChar >= 0 && intParaChar < limite) {
+		return 'A' + intParaChar; //Manda de volta pra char -- Pode usar qnd for fazer printf [Samuel]
+    }
+}
+
 int coordenadaValida(const PARQUE* p, int andar, char, char filaChar, int lugar) {
 
-    if (!p) {
-        return 0;
-    }
-    if (andar < 0 || andar >= p->pisos) {
-        return 0;
-    }
+    if (!p) return 0;
 
-    //cinverte para indice numérico
-    int filaIdx = -1;
-    if (filaChar >= 'A' && filaChar <= 'Z') {
-        filaIdx = filaChar - 'A';
-    }
-    else if (filaChar >= 'a' && filaChar <= 'z') {
-        filaIdx = filaChar - 'a';
-    }
-    else {
-        return 0;
-    }
+    if (andar < 0 || andar >= p->pisos) return 0;
+
+	int filaIdx = colunaChar_Indice(filaChar); // Mudei a função de converter q tava aqui dentro pra fora, por pura frescura [Samuel]
+
     //verifica se fila e valida↓
-    if (filaIdx < 0 || filaIdx >= p->filasPorPiso) {
-        return 0;
-    }//verifica se lugar e valido↓
-    if (lugar < 0 || lugar >= p->lugaresPorFila) {
-        return 0;
-    }
+    if (filaIdx < 0 || filaIdx >= p->filasPorPiso) return 0;//verifica se lugar e valido↓
+   
+    if (lugar < 0 || lugar >= p->lugaresPorFila) return 0;
+   
     return 1; //todas as coordenadas sao validas
 
-} //fiz isto as 02:21 da manha, se estiver uma porcaria avisem. vou mas e pra cama -Bruno-
+} //fiz isto as 02:21 da manha, se estiver uma porcaria avisem. vou mas e pra cama -Bruno-   -- Fiz umas mudanças [Samuel]
 
 
 //=======================================================
-// Leituras
+// Leituras -- Prioriza ler .bin, caso contrario lê .txt
 //=======================================================
 
-int primeiraLeitura() // Aqui a gente vai ler os arquivos 1x, por isso q os .txt tão aqui. dps dessa leitura, o define vai ficar em estruturas.h [Samuel]
-{
-	FILE* f = NULL;
+int carregarBinario(SISTEMA* s) {
+    if (!s) return 0;
+
+	FILE* f = abrirArquivo(BIN_PATH, "rb");
+    if (!f) return 0; //Caso n tenha o .bin
+
+
+    if (fseek(f, 0, SEEK_END) != 0) {
+        fclose(f);
+        return 0;
+    }
+	long sz = ftell(f);
+    if (sz < 0) {
+        fclose(f);
+        return 0;
+    }
+    if(fseek(f, 0, SEEK_SET) != 0) {
+        fclose(f);
+        return 0;
+	}
+    if (sz != sizeof(SISTEMA)) {    //Ficheiro corrompido ou deu merda na estrutura
+        fclose(f);
+        printf(stderr, "Aviso: tamanho do dados.bin inesperado (%ld). Lendo os dados de texto.\n", sz);
+        return 0;
+    }
+
+    size_t lidos = fread(s, sizeof(SISTEMA), 1, f);
+    fclose(f);
+
+    if (lidos != 1) {
+        printf(stderr, "Erro ao ler dados.bin. Lendo os dados de texto.\n");
+        return 0;
+    }
+
+	printf("Dados carregados com sucesso do ficheiro binário.\n");
+    return 1;
+}
+
+ResultadoLeitura leituraConstante(SISTEMA* s) {
+    if (!s) return LER_FALHA_ABRIR;
+
+    if (carregarBinario(s)) {// Tentar carregar o binário primeiro
+        return LER_OK;
+    }
+    
+	printf("Binário não disponível. Carregando dados de texto.\n"); // Abre o .txt se n tiver o .bin [Samuel]
+
+    carregarTarifasDeFicheiro(s);
+    carregarEstacionamentosDeFicheiro(s);
+
+	return LER_OK;
+}
+
+ResultadoLeitura primeiraLeitura(SISTEMA* s){
+    if (!s) return LER_FALHA_ABRIR;
+
+	configurarParque(&s->parque); // Configura o parque (pede os valores pro usuario)
+
+    //Abre os .txt
+    carregarTarifasDeFicheiro(s);
+    carregarEstacionamentosDeFicheiro(s);
+
+    if () {
+    }
 
 
 
