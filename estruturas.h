@@ -105,5 +105,10 @@ ResultadoLeitura primeiraLeitura(SISTEMA* s);
 ResultadoLeitura leituraConstante(SISTEMA* s);
 void inicializarSistema(SISTEMA* s);
 void configurarParque(PARQUE* p);
+FILE* abrirArquivo(const char* caminho, const char* modo);
+
+
+
+
 
 #endif /* estruturas_h */

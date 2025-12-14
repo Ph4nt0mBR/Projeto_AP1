@@ -19,6 +19,7 @@
 // Para definir aonde os .txt estão
 #define TARIFAS_PATH			"tarifas.txt"
 #define ESTACIONAMENTOS_PATH	"estacionamentos.txt"
+#define BIN_PATH				"dados.bin"
 
 
 
@@ -35,14 +36,14 @@ void trimTexto(char* s) { //Remove espaços em branco no final de uma string
 	}
 }
 
-FILE* abrirArquivoTexto(const char* caminho, const char* modo) {
+FILE* abrirArquivo(const char* caminho, const char* modo) {     //Função pra abrir tanto .txt ("r", "w", "a", "r+", "w+", "a+") quanto .bin ("rb", "wb", "ab", "rb+", "wb+", "ab+")
 	
-    FILE* f = fopen(caminho, modo);
-    if (!f) {
+    FILE* file = fopen(caminho, modo);
+    if (!file) {
 		printf("Erro ao abrir o arquivo: %s\n", caminho);
 		return NULL;
     }
-	return f;
+	return file;
 }
 
 int coordenadaValida(const Parque* p, int andar, char, filaChar, int lugar) {
@@ -126,7 +127,7 @@ void carregarTarifasDeFicheiro(SISTEMA* s)
 
     }
 
-	FILE* f = abrirArquivoTexto(TARIFAS_PATH, "r"); //abre o arquivo de tarifas em read only
+	FILE* f = abrirArquivo(TARIFAS_PATH, "r"); //abre o arquivo de tarifas em read only
     if (!f) { 
         return; //se falhar a abrir, sai
     }
@@ -179,7 +180,7 @@ void carregarTarifasDeFicheiro(SISTEMA* s)
 }
 
 void carregarEstacionamentosDeFicheiro(SISTEMA* s) {
-    FILE* f = fopen("Estacionamentos.txt", "r");
+    FILE* f = abrirArquivo(ESTACIONAMENTOS_PATH, "r");
     if (!f) {
         printf("Houve um erro ao abrir o ficheiro.\n");
         return;
