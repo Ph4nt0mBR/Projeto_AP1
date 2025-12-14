@@ -46,13 +46,36 @@ FILE* abrirArquivo(const char* caminho, const char* modo) {     //Função pra a
 	return file;
 }
 
-int coordenadaValida(const Parque* p, int andar, char, filaChar, int lugar) {
-    
-    if (!p) return 0;
-    if (andar < 0 || andar >= p->pisos) return 0;
+int coordenadaValida(const PARQUE* p, int andar, char, char filaChar, int lugar) {
 
+    if (!p) {
+        return 0;
+    }
+    if (andar < 0 || andar >= p->pisos) {
+        return 0;
+    }
 
-}
+    //cinverte para indice numérico
+    int filaIdx = -1;
+    if (filaChar >= 'A' && filaChar <= 'Z') {
+        filaIdx = filaChar - 'A';
+    }
+    else if (filaChar >= 'a' && filaChar <= 'z') {
+        filaIdx = filaChar - 'a';
+    }
+    else {
+        return 0;
+    }
+    //verifica se fila e valida↓
+    if (filaIdx < 0 || filaIdx >= p->filasPorPiso) {
+        return 0;
+    }//verifica se lugar e valido↓
+    if (lugar < 0 || lugar >= p->lugaresPorFila) {
+        return 0;
+    }
+    return 1; //todas as coordenadas sao validas
+
+} //fiz isto as 02:21 da manha, se estiver uma porcaria avisem. vou mas e pra cama -Bruno-
 
 
 //=======================================================
@@ -71,16 +94,16 @@ int primeiraLeitura() // Aqui a gente vai ler os arquivos 1x, por isso q os .txt
 //----------------------------------------------------
 // Inicialização e carregamento de dados
 //----------------------------------------------------
-void configurarParque(Parque* p) {
+void configurarParque(PARQUE* p) {
 
     if (p == NULL) {
-        printf(stderr, "Erro, ponteiro nulo.\n");
+        fprintf(stderr, "Erro, ponteiro nulo.\n");
         return;
     }
 
     while (1) {
         printf("Numero de pisos (1-%d): ", MAX_PISO);
-        if scanf("%d", &p->pisos) == 1 && p->pisos >= 1 && p->pisos <= MAX_PISO) { //verifica se e valido
+        if (scanf("%d", &p->pisos) == 1 && p->pisos >= 1 && p->pisos <= MAX_PISO) { //verifica se e valido
             break; //break para sair do while
         }
         fprintf(stderr, "Valor invalido, tente novamente.\n");
@@ -88,7 +111,7 @@ void configurarParque(Parque* p) {
 
     while (1) {
         printf("Numero de filas por piso (1-%d): ", MAX_FILA);
-        if scanf("%d", &p->filasPorPiso) == 1 && p->filasPorPiso >= 1 && p->filasPorPiso <= MAX_FILA) { //verifica se e valido
+        if (scanf("%d", &p->filasPorPiso) == 1 && p->filasPorPiso >= 1 && p->filasPorPiso <= MAX_FILA) { //verifica se e valido
             break; //break para sair do while
         }
         fprintf(stderr, "Valor invalido, tente novamente.\n");
@@ -96,7 +119,7 @@ void configurarParque(Parque* p) {
 
     while (1) {
         printf("Numero de lugares por fila (1-%d): ", MAX_LUGARES);
-        if scanf("%d", &p->lugaresPorPiso) == 1 && p->lugaresPorPiso >= 1 && p->lugaresPorPiso <= MAX_LUGARES) { //verifica se e valido
+        if (scanf("%d", &p->lugaresPorFila) == 1 && p->lugaresPorFila >= 1 && p->lugaresPorFila <= MAX_LUGARES) { //verifica se e valido
             break; //break para sair do while
         }
         fprintf(stderr, "Valor invalido, tente novamente.\n");
@@ -136,7 +159,7 @@ void carregarTarifasDeFicheiro(SISTEMA* s)
 
     char linha[256];
 	while (fgets(linha, sizeof(linha), f) != NULL) { //le todas as linhas do arquivo
-        //ignora linhas em branco
+        //ignora linhas em branco↓
         if (linha[0] == '\0' || linha[0] == '\n')
             continue;
 
@@ -180,7 +203,18 @@ void carregarTarifasDeFicheiro(SISTEMA* s)
 }
 
 void carregarEstacionamentosDeFicheiro(SISTEMA* s) {
+<<<<<<< HEAD
     FILE* f = abrirArquivo(ESTACIONAMENTOS_PATH, "r");
+=======
+    
+    //verifica se o sistema e valido
+    if (s == NULL) {
+        fprintf(stderr, "Erro: sistema nulo.\n\n");
+        return; //se nao for, nao carrega
+
+    }
+    FILE* f = abrirArquivoTexto("estacionamentos.txt", "r");
+>>>>>>> d11417fe67df46ff612d2f6baefc0513e3172f26
     if (!f) {
         printf("Houve um erro ao abrir o ficheiro.\n");
         return;
@@ -197,7 +231,12 @@ void carregarEstacionamentosDeFicheiro(SISTEMA* s) {
         &e.lugar,
         &e.horaEntrada,
         &e.valorPago) == 8) {
-        s->estacionamentos[s->totalEstacionamentos++] = e;
+        if (s->totalEstacionamentos >= MAX_ESTACIONAMENTOS) {
+            fprintf(stderr, "Limite MAX_ESTACIONAMENTOS ultrapassado.\n");
+            break;
+
+        }
+        s->estacionamentos[s->totalEstacionamentos++] = e; //// adiciona 'e' na posição atual e incrementa o counter
     }
     fclose(f);
     printf("Estacionamentos carregados com sucesso: %d\n", s->totalEstacionamentos);
