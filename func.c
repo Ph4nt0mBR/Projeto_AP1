@@ -156,14 +156,14 @@ ResultadoLeitura primeiraLeitura(SISTEMA* s){
 //----------------------------------------------------
 // Inicialização e carregamento de dados
 //----------------------------------------------------
-void configurarParque(PARQUE* p) {
-
+void configurarParque(PARQUE* p) { //Bruno
+    //Verifica se o ponteiro e valido↓
     if (p == NULL) {
         fprintf(stderr, "Erro, ponteiro nulo.\n");
         return;
     }
 
-    while (1) {
+	while (1) { //pergunta e ve se e valido a quantidade de pisos. usa um loop ate user dar un vakor valido, estes 3 blocos de codigo fazem da mesma forma
         printf("Numero de pisos (1-%d): ", MAX_PISO);
         if (scanf("%d", &p->pisos) == 1 && p->pisos >= 1 && p->pisos <= MAX_PISO) { //verifica se e valido
             break; //break para sair do while
@@ -171,7 +171,7 @@ void configurarParque(PARQUE* p) {
         fprintf(stderr, "Valor invalido, tente novamente.\n");
     }
 
-    while (1) {
+	while (1) { //pergunta quantidade de filas por piso
         printf("Numero de filas por piso (1-%d): ", MAX_FILA);
         if (scanf("%d", &p->filasPorPiso) == 1 && p->filasPorPiso >= 1 && p->filasPorPiso <= MAX_FILA) { //verifica se e valido
             break; //break para sair do while
@@ -179,7 +179,7 @@ void configurarParque(PARQUE* p) {
         fprintf(stderr, "Valor invalido, tente novamente.\n");
     }
 
-    while (1) {
+	while (1) { //pergunta quantidade de lugares por fila
         printf("Numero de lugares por fila (1-%d): ", MAX_LUGARES);
         if (scanf("%d", &p->lugaresPorFila) == 1 && p->lugaresPorFila >= 1 && p->lugaresPorFila <= MAX_LUGARES) { //verifica se e valido
             break; //break para sair do while
@@ -187,7 +187,9 @@ void configurarParque(PARQUE* p) {
         fprintf(stderr, "Valor invalido, tente novamente.\n");
     }
 
-
+    //Pra todas as posicoes ate ao MAX, definimos o estado inicial.
+    //Se a posição existe marca se como LUGAR_LIVRE.
+    //Caso contrario, marcamos como LUGAR_INDISPONIVEL
     for (int a = 0; a < MAX_PISO; a++) {
         for (int f = 0; f < MAX_FILA; f++) {
             for (int l = 0; l < MAX_LUGARES; l++) { //percorre todos os pisos filas e lugares
@@ -203,7 +205,7 @@ void configurarParque(PARQUE* p) {
     }
 }
 
-void carregarTarifasDeFicheiro(SISTEMA* s)
+void carregarTarifasDeFicheiro(SISTEMA* s) //Bruno
 {
 	//verifica se o sistema e valido
     if (s == NULL) {
@@ -264,7 +266,7 @@ void carregarTarifasDeFicheiro(SISTEMA* s)
     printf("Tarifas carregadas com sucesso: %d\n", s->totalTarifas);
 }
 
-void carregarEstacionamentosDeFicheiro(SISTEMA* s) {
+void carregarEstacionamentosDeFicheiro(SISTEMA* s) { //Bruno
 <<<<<<< HEAD
     FILE* f = abrirArquivo(ESTACIONAMENTOS_PATH, "r");
 =======
@@ -276,7 +278,7 @@ void carregarEstacionamentosDeFicheiro(SISTEMA* s) {
 
     }
     FILE* f = abrirArquivoTexto("estacionamentos.txt", "r");
->>>>>>> d11417fe67df46ff612d2f6baefc0513e3172f26
+>>>>>>> d11417fe67df46ff612d2f6baefc0513e3172f26       //?????
     if (!f) {
         printf("Houve um erro ao abrir o ficheiro.\n");
         return;
@@ -308,7 +310,7 @@ void carregarEstacionamentosDeFicheiro(SISTEMA* s) {
 
 // Removi as funções de carregar tarifas e estacionamento. Vou converter em uma função que inicia a primeira leitura dos arquivos .atxt e depois dos arquivos em .bin [Samuel]
 
-void inicializarSistema(SISTEMA* s) {
+void inicializarSistema(SISTEMA* s) { //Bruno
     int a, f, l;
 
     //reset geral dos contadores
@@ -373,7 +375,7 @@ void mostrarOcupacaoPisos() {
 //----------------------------------------------------
 // Entrada de veículos
 //----------------------------------------------------
-int registarEntradaVeiculo(Sistema* s) {
+int registarEntradaVeiculo(Sistema* s) { //Bruno
 	if (!s) return -1;
 
     Estacionamento novo;
@@ -416,8 +418,7 @@ int registarEntradaVeiculo(Sistema* s) {
 
 
     if (!encontrou) {
-        printf("Não existem lugares disponíveis neste piso.
-            ");
+        printf("Não existem lugares disponíveis neste piso.");
             return -1;
     }
 
@@ -452,7 +453,7 @@ int registarEntradaVeiculo(Sistema* s) {
         return novo.numEntrada;
 }
 
-int atribuirLugar(Sistema* s, int piso, int* filaOut, int* lugarOut)
+int atribuirLugar(Sistema* s, int piso, int* filaOut, int* lugarOut) //Bruno
 {
     //valida entradas
     if (s == NULL || filaOut == NULL || lugarOut == NULL)
