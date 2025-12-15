@@ -384,13 +384,13 @@ void inicializarSistema(SISTEMA* s) { //Bruno
         }
     }
 
-    //reset das tarifas agrupadas
-    s->tarifasBase.valor_T1 = 0.0f;
-    s->tarifasBase.valor_T2 = 0.0f;
-    s->tarifasBase.valor_T3 = 0.0f;
-    s->tarifasBase.valor_T4 = 0.0f;
-
-    //reset das tarifas individuais
+    /* //reset das tarifas agrupadas
+     s->tarifasBase.valor_T1 = 0.0f;
+     s->tarifasBase.valor_T2 = 0.0f;
+     s->tarifasBase.valor_T3 = 0.0f;
+     s->tarifasBase.valor_T4 = 0.0f;
+ */
+ //reset das tarifas individuais
     for (a = 0; a < MAX_TARIFAS; a++) {
         s->tarifas[a].valor = 0.0f;
         strcpy(s->tarifas[a].etiqueta, "");
