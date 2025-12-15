@@ -102,11 +102,24 @@ typedef struct sistema {
 //		PROTÓTIPOS
 //=======================================================
 
+
+void configurarParque(PARQUE* p);
+
+//--------------------------------
+// Funções que lidam com ficheiros
+//--------------------------------
+FILE* abrirArquivo(const char* caminho, const char* modo);
 ResultadoLeitura primeiraLeitura(SISTEMA* s);
 ResultadoLeitura leituraConstante(SISTEMA* s);
+// Binario
+void guardarBinario(SISTEMA* s);
+int carregarBinario(SISTEMA* s);
+// Texto
+void carregarEstacionamentosDeFicheiro(SISTEMA* s);
+void carregarTarifasDeFicheiro(SISTEMA* s);
+
+
 void inicializarSistema(SISTEMA* s);
-void configurarParque(PARQUE* p);
-FILE* abrirArquivo(const char* caminho, const char* modo);
 
 
 

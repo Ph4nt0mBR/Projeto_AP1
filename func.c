@@ -80,6 +80,32 @@ int coordenadaValida(const PARQUE* p, int andar, char, char filaChar, int lugar)
 
 
 //=======================================================
+// Guardar Info
+//=======================================================
+
+void guardarBinario(SISTEMA* s) {
+
+    if (!s) {
+        prinft(stderr, "Erro ao guardar dados!!\n");
+        return;
+    }
+
+    FILE* f = abrirArquivo(BIN_PATH, "wb");
+    if (!f) {
+        printf(stderr, "Erro ao abrir/criar ficheiro %s!!\n", BIN_PATH);
+        fclose(f);
+        return;
+    }
+    if (fclose(f) != 0) {
+        printf(stderr, "Erro ao fechar ficheiro %s!!\n", BIN_PATH);
+        return;
+    }
+
+	printf("Dados guardados com sucesso em: %s\n", BIN_PATH);
+}
+
+
+//=======================================================
 // Leituras -- Prioriza ler .bin, caso contrario lê .txt
 //=======================================================
 
@@ -145,11 +171,11 @@ ResultadoLeitura primeiraLeitura(SISTEMA* s){
     carregarTarifasDeFicheiro(s);
     carregarEstacionamentosDeFicheiro(s);
 
-    if () {
+    if (!guardarBinario(s) {
+		printf(stderr, "Erro: Não foi possivel criar %s!\n", BIN_PATH);
+		return LER_ERRO_IO;
     }
-
-
-
+	return LER_OK;
 }
 
 
@@ -267,9 +293,9 @@ void carregarTarifasDeFicheiro(SISTEMA* s) //Bruno
 }
 
 void carregarEstacionamentosDeFicheiro(SISTEMA* s) { //Bruno
-<<<<<<< HEAD
+
     FILE* f = abrirArquivo(ESTACIONAMENTOS_PATH, "r");
-=======
+
     
     //verifica se o sistema e valido
     if (s == NULL) {
@@ -277,8 +303,8 @@ void carregarEstacionamentosDeFicheiro(SISTEMA* s) { //Bruno
         return; //se nao for, nao carrega
 
     }
-    FILE* f = abrirArquivoTexto("estacionamentos.txt", "r");
->>>>>>> d11417fe67df46ff612d2f6baefc0513e3172f26       //?????
+    FILE* f = abrirArquivo("estacionamentos.txt", "r");
+
     if (!f) {
         printf("Houve um erro ao abrir o ficheiro.\n");
         return;
