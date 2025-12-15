@@ -1,5 +1,4 @@
-                               //PROPRIEDADE DO LULU QUALQUER ALTERAÇÃO POR FAVOR ENTRAR EM CONTACTU!!!
-
+   //Criei o código pra funcionar como o start do programa, qualquer dúvida entrar em contato (main.c é a minha parte do projeto i think) __Luca
 
 /*
   main.c
@@ -139,3 +138,4 @@ int main(int argc, char *argv[]) {
 
 // Se cada um já tiver atualizado seus arquivos com as instrucoes q mandei no grupo, 
 // este arquivo main.c ja deve estar a funcionar perfeitamente para o estacionamento qualquer duvida so me chamar __Lu
+
