@@ -14,12 +14,7 @@
 
 
 
-#include "estruturas.h" // -- Não precisa incluir stdio.h aqui, já está em estruturas.h [Samuel]
-
-// Para definir aonde os .txt estão
-#define TARIFAS_PATH			"tarifas.txt"
-#define ESTACIONAMENTOS_PATH	"estacionamentos.txt"
-#define BIN_PATH				"dados.bin"
+#include "funcoes.h" // -- Não precisa incluir stdio.h aqui, já está em estruturas.h [Samuel]
 
 
 
@@ -73,24 +68,24 @@ int coordenadaValida(const PARQUE* p, int andar, char filaChar, int lugar) {  //
 
 int guardarBinario(SISTEMA* s) {
     if (!s) {
-        prinft(stderr, "Erro ao guardar dados!!\n");
-        return;
+        fprintf(stderr, "Erro ao guardar dados!!\n");
+        return 0;
     }
     FILE* f = abrirArquivo(BIN_PATH, "wb");
     if (!f) {
-        printf(stderr, "Erro ao abrir/criar ficheiro %s!!\n", BIN_PATH);
-        return;
+        fprintf(stderr, "Erro ao abrir/criar ficheiro %s!!\n", BIN_PATH);
+        return 0;
     }
 
-    size_t escritos = frwite(s, sizeof(SISTEMA), 1, f);
+    size_t escritos = fwrite(s, sizeof(SISTEMA), 1, f);
 	fflush(f); //Garantir que os dados foram escritos no disco
     if (fclose(f) != 0) {
-        printf(stderr, "Erro ao fechar ficheiro %s!!\n", BIN_PATH);
+        fprintf(stderr, "Erro ao fechar ficheiro %s!!\n", BIN_PATH);
         return 0;
     }
 
     if (escritos != 1) {
-        printf(stderr, "Erro ao escrever em %s!!\n", BIN_PATH);
+        fprintf(stderr, "Erro ao escrever em %s!!\n", BIN_PATH);
         return 0;
     }
 	printf("Dados guardados com sucesso em: %s\n", BIN_PATH);
@@ -108,28 +103,19 @@ int carregarBinario(SISTEMA* s) {
     if (!f) return 0; //Caso n tenha o .bin
 
 
-    if (fseek(f, 0, SEEK_END) != 0) {
-        fclose(f);
-        return 0;
-    }
+    if (fseek(f, 0, SEEK_END) != 0) { fclose(f); return 0; }
     long sz = ftell(f);
-    if (sz < 0) {
-        fclose(f);
-        return 0;
-    }
-    if (fseek(f, 0, SEEK_SET) != 0) {
-        fclose(f);
-        return 0;
-    }
+    if (sz < 0) { fclose(f); return 0; }
+    if (fseek(f, 0, SEEK_SET) != 0) { fclose(f); return 0; }
     if (sz != sizeof(SISTEMA)) {    //Ficheiro corrompido ou deu merda na estrutura
         fclose(f);
-        printf(stderr, "Aviso: tamanho do dados.bin inesperado (%ld). Lendo os dados de texto.\n", sz);
+        fprintf(stderr, "Aviso: tamanho do %s inesperado (%ld).\n", BIN_PATH, sz);
         return 0;
     }
     size_t lidos = fread(s, sizeof(SISTEMA), 1, f);
     fclose(f);
     if (lidos != 1) {
-        printf(stderr, "Erro ao ler dados.bin. Lendo os dados de texto.\n");
+        fprintf(stderr, "Erro ao ler dados.bin. Lendo os dados de texto.\n");
         return 0;
     }
     printf("Dados carregados com sucesso do ficheiro binário.\n");
@@ -139,24 +125,23 @@ int carregarBinario(SISTEMA* s) {
 ResultadoLeitura leituraConstante(SISTEMA* s) {
     if (!s) return LER_FALHA_ABRIR;
 
-    if (carregarBinario(s)) {// Tentar carregar o binário primeiro
+	if (carregarBinario(s)) {// Só carrega dados.bin se existir
         return LER_OK;
     }
 
-    printf("Binário não disponível. Carregando dados de texto.\n"); // Abre o .txt se n tiver o .bin [Samuel]
-    carregarTarifasDeFicheiro(s);
-    carregarEstacionamentosDeFicheiro(s);
-
-    return LER_OK;
+    return LER_FALHA_ABRIR;
 }
 
 ResultadoLeitura primeiraLeitura(SISTEMA* s){
     if (!s) return LER_FALHA_ABRIR;
 
-    configurarParque(&s->parque);
+	configurarParque(&s->parque);   //1° Configura o parque
 
-    carregarTarifasDeFicheiro(s);
+    carregarTarifasDeFicheiro(s);   //2° carrega os ficheiros txt
     carregarEstacionamentosDeFicheiro(s);
+
+    /*  Copilot sugeriu isso daqui. Avaliar posteriormente se vale a pena
+        if (s->totalTarifas == 0 && s->totalEstacionamentos == 0) return LER_FICHEIRO_VAZIO;    */
 
     if (!guardarBinario(s)) {
         fprintf(stderr, "Erro: Não foi possivel criar %s!\n", BIN_PATH);
@@ -170,10 +155,9 @@ ResultadoLeitura primeiraLeitura(SISTEMA* s){
 // Texto: tarifas e estacionamentos 
 //====================================================
 
-void carregarTarifasDeFicheiro(SISTEMA* s) //Bruno
-{
-    //verifica se o sistema e valido
-    if (!s) {
+void carregarTarifasDeFicheiro(SISTEMA* s) {//Bruno
+
+    if (!s) {   //verifica se o sistema e valido
         fprintf(stderr, "Erro: sistema nulo.\n\n");
         return; //se nao for, nao carrega
     }
@@ -188,8 +172,7 @@ void carregarTarifasDeFicheiro(SISTEMA* s) //Bruno
     char linha[256];
 
     while (fgets(linha, sizeof(linha), f) != NULL) { //le todas as linhas do arquivo
-        //ignora linhas em branco↓
-        if (linha[0] == '\0' || linha[0] == '\n') continue;
+        if (linha[0] == '\0' || linha[0] == '\n') continue; //ignora linhas em branco
 
         //etiqueta e valor (tirados do tarifas.txt)
         char valorStr[32] = {0};
@@ -205,11 +188,9 @@ void carregarTarifasDeFicheiro(SISTEMA* s) //Bruno
         //vai converter a string para um float
         char* endptr = NULL;
         float valor = strtof(valorStr, &endptr);
-
         if (endptr == valorStr) { //verifica se o strtof falhou (strtof é o que converte string para float)
             fprintf(stderr, "Valor de tarifa invalido: %s", linha);
             continue;
-
         }
 
         //mensagem de erro se passar do maximo
@@ -231,7 +212,6 @@ void carregarTarifasDeFicheiro(SISTEMA* s) //Bruno
 }
 
 void carregarEstacionamentosDeFicheiro(SISTEMA* s) { // Bruno
-
     // verifica se o sistema é válido
     if (!s) {
         fprintf(stderr, "Erro: sistema nulo.\n\n");
@@ -240,14 +220,14 @@ void carregarEstacionamentosDeFicheiro(SISTEMA* s) { // Bruno
 
     FILE* f = abrirArquivo(ESTACIONAMENTOS_PATH, "r");
     if (!f) {
-        printf("Houve um erro ao abrir o ficheiro.\n");
+        printf("Houve um erro ao abrir o ficheiro %s.\n", ESTACIONAMENTOS_PATH);
         return;
     }
 
     s->totalEstacionamentos = 0;
-    Estacionamento e;
+    VAGAS e = {0}; // FIX: Initialize all fields of 'e' to zero/default
 
-    while (fscanf(f, "%d %10s %10s %d %c %d %5s %f",
+    while (fscanf(f, "%d %10s %10s %d %c %d %5s %d",
         &e.id,
         e.matricula,
         e.dataEntrada,   // mantido como estava logicamente (campo existente)
@@ -255,7 +235,7 @@ void carregarEstacionamentosDeFicheiro(SISTEMA* s) { // Bruno
         &e.fila,
         &e.lugar,
         e.horaEntrada,
-        &e.estado) == 8) {// valor lido, mesmo que depois seja ajustado
+        (int*)&e.estado) == 8) {// valor lido, mesmo que depois seja ajustado
 
         if (s->totalEstacionamentos >= MAX_ESTACIONAMENTOS) {
             fprintf(stderr, "Limite MAX_ESTACIONAMENTOS ultrapassado.\n");
@@ -354,8 +334,7 @@ void configurarParque(PARQUE* p) { //Bruno
 
 
 // Carregar ficheiros de dados
-primeiraLeitura(s);
-leituraConstante(s);
+
 } //esta funcao e basicamente "formatar" o sistema. Tudo volta ao "estado inicial"
 
 //----------------------------------------------------

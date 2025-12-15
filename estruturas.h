@@ -13,6 +13,11 @@
 
 #define	_CRT_SECURE_NO_WARNINGS
 
+// Para definir aonde os .txt estão
+#define TARIFAS_PATH			"tarifas.txt"
+#define ESTACIONAMENTOS_PATH	"estacionamentos.txt"
+#define BIN_PATH				"dados.bin"
+
 #ifndef estruturas_h
 #define estruturas_h
 
@@ -21,6 +26,8 @@
 #include <locale.h>
 #include <string.h>
 #include <ctype.h>
+
+
 
 
 //==========================================
