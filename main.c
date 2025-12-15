@@ -105,6 +105,35 @@ int main(int argc, char *argv[]) {
         printf("Interrupção recebida. Dados gravados e programa encerrado.\n"); 
     }
 
+	//=======================================================
+	//   REFERENTE AO enum ResultadoLeitura
+	//=======================================================
+    ResultadoLeitura r = leituraConstante(&sistema);
+    switch (r) {
+    case LER_OK:
+        printf("Leitura concluída.\n");
+        break;
+    case LER_FALHA_ABRIR:
+        fprintf(stderr, "Erro: não foi possível abrir um ficheiro requerido.\n");
+        return 1;
+    case LER_FICHEIRO_VAZIO:
+        fprintf(stderr, "Aviso: ficheiro sem dados úteis.\n");
+        break;
+    case LER_ERRO_FORMATO:
+        fprintf(stderr, "Erro: dados de texto com formato inválido.\n");
+        return 1;
+    case LER_ERRO_IO:
+        fprintf(stderr, "Erro: falha de I/O ao ler/gravar.\n");
+        return 1;
+    case LER_DIMENSOES_INVALIDAS:
+        fprintf(stderr, "Erro: dimensões do parque inválidas.\n");
+        return 1;
+    case LER_CAPACIDADE_EXCEDIDA:
+        fprintf(stderr, "Erro: capacidade máxima excedida.\n");
+        return 1;
+    }
+
+
     return 0;
 }
 

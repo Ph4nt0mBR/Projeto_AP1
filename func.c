@@ -27,55 +27,35 @@
 // Utilitários
 //=======================================================
 
-void trimTexto(char* s) { //Remove espaços em branco no final de uma string
-	
-	if (!s) return;
-    size_t n = strlen(s);
-    while (n > 0 && (s[n-1] == '\n' || s[n-1] == '\r' || s[n-1] == ' ' || s[n-1] == '\t')) {
-        s[--n] = '\0';
-	}
-}
-
 FILE* abrirArquivo(const char* caminho, const char* modo) {     //Função pra abrir tanto .txt ("r", "w", "a", "r+", "w+", "a+") quanto .bin ("rb", "wb", "ab", "rb+", "wb+", "ab+")
-	
-    FILE* file = fopen(caminho, modo);
-    if (!file) {
-		printf("Erro ao abrir o arquivo: %s\n", caminho);
-		return NULL;
-    }
-	return file;
+    return fopen(caminho, modo);
 }
 
 int colunaChar_Indice(char letraParaNum) { // Converte os char pra int
-    letraParaNum = toupper(letraParaNum);
+	letraParaNum = (char)toupper((unsigned char)letraParaNum);  //  o unsigned char evita problemas com chars acentuados, o char garante que só char entre no toupper [Samuel]
     if (letraParaNum >= 'A' && letraParaNum <= 'Z') {
         return letraParaNum - 'A';
     }
     return - 1; // Retorna -1 se o caractere não for válido -- honestamente eu n entendi mt bem qual a diferença entre -1 e null, mas oh well [Samuel]
 }
 
-char colunaIndice_Char(const PARQUE* p, int intParaChar) {
+char colunaIndice_Char(const PARQUE* p, int intParaChar) { // Converte int -> letra com validação contra PARQUE ou MAX_FILA
     int limite = p ? p->filasPorPiso : MAX_FILA; //verifica se p e nulo, se for usa o maximo
     if (intParaChar >= 0 && intParaChar < limite) {
-		return 'A' + intParaChar; //Manda de volta pra char -- Pode usar qnd for fazer printf [Samuel]
+		return (char)('A' + intParaChar); //Manda de volta pra char -- Pode usar qnd for fazer printf [Samuel]
     }
+	return '?'; // Retorna '?' se o int não for válido
 }
 
-int coordenadaValida(const PARQUE* p, int andar, char, char filaChar, int lugar) {
-
+int coordenadaValida(const PARQUE* p, int andar, char, char filaChar, int lugar) {  //Verifica se o lugar está dentro dos limites do estacionamento
     if (!p) return 0;
-
     if (andar < 0 || andar >= p->pisos) return 0;
 
 	int filaIdx = colunaChar_Indice(filaChar); // Mudei a função de converter q tava aqui dentro pra fora, por pura frescura [Samuel]
-
     //verifica se fila e valida↓
     if (filaIdx < 0 || filaIdx >= p->filasPorPiso) return 0;//verifica se lugar e valido↓
-   
     if (lugar < 0 || lugar >= p->lugaresPorFila) return 0;
-   
     return 1; //todas as coordenadas sao validas
-
 } //fiz isto as 02:21 da manha, se estiver uma porcaria avisem. vou mas e pra cama -Bruno-   -- Fiz umas mudanças [Samuel]
 
 
@@ -84,12 +64,10 @@ int coordenadaValida(const PARQUE* p, int andar, char, char filaChar, int lugar)
 //=======================================================
 
 void guardarBinario(SISTEMA* s) {
-
     if (!s) {
         prinft(stderr, "Erro ao guardar dados!!\n");
         return;
     }
-
     FILE* f = abrirArquivo(BIN_PATH, "wb");
     if (!f) {
         printf(stderr, "Erro ao abrir/criar ficheiro %s!!\n", BIN_PATH);
