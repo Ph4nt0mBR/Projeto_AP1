@@ -1,10 +1,10 @@
 /*
-	header.h
-	Criado por: Bruno
-	Data 26/11
+    header.h
+    Criado por: Bruno
+    Data 26/11
 
-	Nota: O núcledo da estrutura principal vai ficar aqui.
-	Aqui deve ser incluido as .h e a main.c deve incluir esse arquivo [Samuel]
+    Nota: O núcledo da estrutura principal vai ficar aqui.
+    Aqui deve ser incluido as .h e a main.c deve incluir esse arquivo [Samuel]
 
 */
 
@@ -36,7 +36,7 @@ int colunaChar_Indice(char letraParaNum) { // Converte os char pra int
     if (letraParaNum >= 'A' && letraParaNum <= 'Z') {
         return letraParaNum - 'A';
     }
-    return - 1; // Retorna -1 se o caractere não for válido -- honestamente eu n entendi mt bem qual a diferença entre -1 e null, mas oh well [Samuel]
+    return -1; // Retorna -1 se o caractere não for válido -- honestamente eu n entendi mt bem qual a diferença entre -1 e null, mas oh well [Samuel]
 }
 
 char colunaIndice_Char(const PARQUE* p, int intParaChar) { // Converte int -> letra com validação contra PARQUE ou MAX_FILA
@@ -82,7 +82,6 @@ void guardarBinario(SISTEMA* s) {
 	printf("Dados guardados com sucesso em: %s\n", BIN_PATH);
 }
 
-
 //=======================================================
 // Leituras -- Prioriza ler .bin, caso contrario lê .txt
 //=======================================================
@@ -90,7 +89,7 @@ void guardarBinario(SISTEMA* s) {
 int carregarBinario(SISTEMA* s) {
     if (!s) return 0;
 
-	FILE* f = abrirArquivo(BIN_PATH, "rb");
+    FILE* f = abrirArquivo(BIN_PATH, "rb");
     if (!f) return 0; //Caso n tenha o .bin
 
 
@@ -98,15 +97,15 @@ int carregarBinario(SISTEMA* s) {
         fclose(f);
         return 0;
     }
-	long sz = ftell(f);
+    long sz = ftell(f);
     if (sz < 0) {
         fclose(f);
         return 0;
     }
-    if(fseek(f, 0, SEEK_SET) != 0) {
+    if (fseek(f, 0, SEEK_SET) != 0) {
         fclose(f);
         return 0;
-	}
+    }
     if (sz != sizeof(SISTEMA)) {    //Ficheiro corrompido ou deu merda na estrutura
         fclose(f);
         printf(stderr, "Aviso: tamanho do dados.bin inesperado (%ld). Lendo os dados de texto.\n", sz);
@@ -121,7 +120,7 @@ int carregarBinario(SISTEMA* s) {
         return 0;
     }
 
-	printf("Dados carregados com sucesso do ficheiro binário.\n");
+    printf("Dados carregados com sucesso do ficheiro binário.\n");
     return 1;
 }
 
@@ -131,29 +130,29 @@ ResultadoLeitura leituraConstante(SISTEMA* s) {
     if (carregarBinario(s)) {// Tentar carregar o binário primeiro
         return LER_OK;
     }
-    
-	printf("Binário não disponível. Carregando dados de texto.\n"); // Abre o .txt se n tiver o .bin [Samuel]
+
+    printf("Binário não disponível. Carregando dados de texto.\n"); // Abre o .txt se n tiver o .bin [Samuel]
 
     carregarTarifasDeFicheiro(s);
     carregarEstacionamentosDeFicheiro(s);
 
-	return LER_OK;
+    return LER_OK;
 }
 
 ResultadoLeitura primeiraLeitura(SISTEMA* s){
     if (!s) return LER_FALHA_ABRIR;
 
-	configurarParque(&s->parque); // Configura o parque (pede os valores pro usuario)
+    configurarParque(&s->parque);
 
-    //Abre os .txt
     carregarTarifasDeFicheiro(s);
     carregarEstacionamentosDeFicheiro(s);
 
-    if (!guardarBinario(s) {
-		printf(stderr, "Erro: Não foi possivel criar %s!\n", BIN_PATH);
-		return LER_ERRO_IO;
+    if (!guardarBinario(s)) {
+        fprintf(stderr, "Erro: Não foi possivel criar %s!\n", BIN_PATH);
+        return LER_ERRO_IO;
     }
-	return LER_OK;
+
+    return LER_OK;
 }
 
 
@@ -167,7 +166,7 @@ void configurarParque(PARQUE* p) { //Bruno
         return;
     }
 
-	while (1) { //pergunta e ve se e valido a quantidade de pisos. usa um loop ate user dar un vakor valido, estes 3 blocos de codigo fazem da mesma forma
+    while (1) { //pergunta e ve se e valido a quantidade de pisos. usa um loop ate user dar un vakor valido, estes 3 blocos de codigo fazem da mesma forma
         printf("Numero de pisos (1-%d): ", MAX_PISO);
         if (scanf("%d", &p->pisos) == 1 && p->pisos >= 1 && p->pisos <= MAX_PISO) { //verifica se e valido
             break; //break para sair do while
@@ -175,7 +174,7 @@ void configurarParque(PARQUE* p) { //Bruno
         fprintf(stderr, "Valor invalido, tente novamente.\n");
     }
 
-	while (1) { //pergunta quantidade de filas por piso
+    while (1) { //pergunta quantidade de filas por piso
         printf("Numero de filas por piso (1-%d): ", MAX_FILA);
         if (scanf("%d", &p->filasPorPiso) == 1 && p->filasPorPiso >= 1 && p->filasPorPiso <= MAX_FILA) { //verifica se e valido
             break; //break para sair do while
@@ -183,7 +182,7 @@ void configurarParque(PARQUE* p) { //Bruno
         fprintf(stderr, "Valor invalido, tente novamente.\n");
     }
 
-	while (1) { //pergunta quantidade de lugares por fila
+    while (1) { //pergunta quantidade de lugares por fila
         printf("Numero de lugares por fila (1-%d): ", MAX_LUGARES);
         if (scanf("%d", &p->lugaresPorFila) == 1 && p->lugaresPorFila >= 1 && p->lugaresPorFila <= MAX_LUGARES) { //verifica se e valido
             break; //break para sair do while
@@ -202,7 +201,7 @@ void configurarParque(PARQUE* p) { //Bruno
                 }
                 else {
                     p->mapa[a][f][l] = LUGAR_INDISPONIVEL;
-                } //Verifica se o lugar existe e marca como livre ou indisponivel   
+                } //Verifica se o lugar existe e marca como livre ou indisponivel
 
             }
         }
@@ -211,32 +210,32 @@ void configurarParque(PARQUE* p) { //Bruno
 
 void carregarTarifasDeFicheiro(SISTEMA* s) //Bruno
 {
-	//verifica se o sistema e valido
+    //verifica se o sistema e valido
     if (s == NULL) {
         fprintf(stderr, "Erro: sistema nulo.\n\n");
         return; //se nao for, nao carrega
 
     }
 
-	FILE* f = abrirArquivo(TARIFAS_PATH, "r"); //abre o arquivo de tarifas em read only
-    if (!f) { 
+    FILE* f = abrirArquivo(TARIFAS_PATH, "r"); //abre o arquivo de tarifas em read only
+    if (!f) {
         return; //se falhar a abrir, sai
     }
 
     s->totalTarifas = 0;
 
     char linha[256];
-	while (fgets(linha, sizeof(linha), f) != NULL) { //le todas as linhas do arquivo
+    while (fgets(linha, sizeof(linha), f) != NULL) { //le todas as linhas do arquivo
         //ignora linhas em branco↓
         if (linha[0] == '\0' || linha[0] == '\n')
             continue;
 
-		//etiqueta e valor (tirados do tarifas.txt)
+        //etiqueta e valor (tirados do tarifas.txt)
         char valorStr[32] = { 0 };
         char etiqueta[16] = { 0 };
 
-		if (sscanf(linha, "%15s %31s", etiqueta, valorStr) != 2) { //separa os dois valores diferentes, etiqueta e valor
-			fprintf(stderr, "Linha de tarifa invalida: %s\n", linha); //mensagem de erro caso a linha nao esteja no formato correto
+        if (sscanf(linha, "%15s %31s", etiqueta, valorStr) != 2) { //separa os dois valores diferentes, etiqueta e valor
+            fprintf(stderr, "Linha de tarifa invalida: %s\n", linha); //mensagem de erro caso a linha nao esteja no formato correto
             continue; //passa pra a proxima linha
         }
 
@@ -244,13 +243,13 @@ void carregarTarifasDeFicheiro(SISTEMA* s) //Bruno
         char* endptr = NULL;
         float valor = strtof(valorStr, &endptr);
 
-		if (endptr == valorStr) { //verifica se o strtof falhou (strtof é o que converte string para float)
+        if (endptr == valorStr) { //verifica se o strtof falhou (strtof é o que converte string para float)
             fprintf(stderr, "Valor de tarifa invalido: %s", linha);
             continue;
 
         }
 
-		//mensagem de erro se passar do maximo
+        //mensagem de erro se passar do maximo
         if (s->totalTarifas >= MAX_TARIFAS) {
             fprintf(stderr, "Limite MAX_TARIFAS atingido. Ignorando restante.\n");
             break;
@@ -270,45 +269,44 @@ void carregarTarifasDeFicheiro(SISTEMA* s) //Bruno
     printf("Tarifas carregadas com sucesso: %d\n", s->totalTarifas);
 }
 
-void carregarEstacionamentosDeFicheiro(SISTEMA* s) { //Bruno
+void carregarEstacionamentosDeFicheiro(SISTEMA* s) { // Bruno
 
-    FILE* f = abrirArquivo(ESTACIONAMENTOS_PATH, "r");
-
-    
-    //verifica se o sistema e valido
+    // verifica se o sistema é válido
     if (s == NULL) {
         fprintf(stderr, "Erro: sistema nulo.\n\n");
-        return; //se nao for, nao carrega
-
+        return;
     }
-    FILE* f = abrirArquivo("estacionamentos.txt", "r");
 
+    FILE* f = abrirArquivo(ESTACIONAMENTOS_PATH, "r");
     if (!f) {
         printf("Houve um erro ao abrir o ficheiro.\n");
         return;
     }
 
     s->totalEstacionamentos = 0;
-    Estacionamento e;
-    while (fscanf(f, "%d %s %s %d %d %d %d %f\n",
-        &e.numEntrada,
+
+    VAGAS e; //borrava-se aqui pq usei estacionamentos em vez de VAGAS lol
+    while (fscanf(f, "%d %10s %10s %d %c %d %5s %f",
+        &e.id,
         e.matricula,
-        e.tipoVeiculo,
-        &e.piso,
+        e.dataEntrada,   // mantido como estava logicamente (campo existente)
+        &e.andar,
         &e.fila,
         &e.lugar,
-        &e.horaEntrada,
-        &e.valorPago) == 8) {
+        e.horaEntrada,
+        &e.estado        // valor lido, mesmo que depois seja ajustado
+    ) == 8) {
+
         if (s->totalEstacionamentos >= MAX_ESTACIONAMENTOS) {
             fprintf(stderr, "Limite MAX_ESTACIONAMENTOS ultrapassado.\n");
             break;
-
         }
-        s->estacionamentos[s->totalEstacionamentos++] = e; //// adiciona 'e' na posição atual e incrementa o counter
+
+        s->estacionamentos[s->totalEstacionamentos++] = e;
     }
+
     fclose(f);
     printf("Estacionamentos carregados com sucesso: %d\n", s->totalEstacionamentos);
-
 }
 
 
@@ -336,13 +334,13 @@ void inicializarSistema(SISTEMA* s) { //Bruno
         }
     }
 
-    //reset das tarifas agrupadas
-    s->tarifasBase.valor_T1 = 0.0f;
-    s->tarifasBase.valor_T2 = 0.0f;
-    s->tarifasBase.valor_T3 = 0.0f;
-    s->tarifasBase.valor_T4 = 0.0f;
-
-    //reset das tarifas individuais
+    /* //reset das tarifas agrupadas
+     s->tarifasBase.valor_T1 = 0.0f;
+     s->tarifasBase.valor_T2 = 0.0f;
+     s->tarifasBase.valor_T3 = 0.0f;
+     s->tarifasBase.valor_T4 = 0.0f;
+ */
+ //reset das tarifas individuais
     for (a = 0; a < MAX_TARIFAS; a++) {
         s->tarifas[a].valor = 0.0f;
         strcpy(s->tarifas[a].etiqueta, "");
@@ -356,13 +354,13 @@ void inicializarSistema(SISTEMA* s) { //Bruno
         strcpy(s->estacionamentos[a].dataEntrada, "");
         strcpy(s->estacionamentos[a].horaEntrada, "");
         strcpy(s->estacionamentos[a].dataSaida, "");
-            }
-        strcpy(s->estacionamentos[a].horaSaida, "");
     }
+    strcpy(s->estacionamentos[a].horaSaida, "");
+}
 
-    // Carregar ficheiros de dados
-    primeiraLeitura(s);
-    leituraConstante(s);
+// Carregar ficheiros de dados
+primeiraLeitura(s);
+leituraConstante(s);
 } //esta funcao e basicamente "formatar" o sistema. Tudo volta ao "estado inicial"
 
 //----------------------------------------------------
@@ -380,26 +378,26 @@ void mostrarOcupacaoPisos() {
 // Entrada de veículos
 //----------------------------------------------------
 int registarEntradaVeiculo(Sistema* s) { //Bruno
-	if (!s) return -1;
+    if (!s) return -1;
 
     Estacionamento novo;
 
-	novo.numEntrada = ++s->ultimoNumEntrada;
+    novo.numEntrada = ++s->ultimoNumEntrada;
 
-	printf("Matriculas do veiculo: ");
-	scanf("%s", novo.matricula);
+    printf("Matriculas do veiculo: ");
+    scanf("%s", novo.matricula);
 
-	printf("Tipo de veiculo (ex: 'Carro', 'Moto', 'Camiao'): ");)
+    printf("Tipo de veiculo (ex: 'Carro', 'Moto', 'Camiao'): ");)
     scanf("%s", novo.tipoVeiculo);
 
 
-    
+
     int piso; //escolher piso
     printf("Piso pretendido (0 a %d): ", s->parque.pisos - 1);
     scanf("%d", &piso);
 
 
-    
+
     if (piso < 0 || piso >= s->parque.pisos) { //validação piso
         printf("Piso inválido!
             ");
@@ -407,7 +405,7 @@ int registarEntradaVeiculo(Sistema* s) { //Bruno
     }
 
 
-	// Procurar lugar livre no piso escolhido
+    // Procurar lugar livre no piso escolhido
     int fila, lugar;
     int encontrou = 0;
 
@@ -423,7 +421,7 @@ int registarEntradaVeiculo(Sistema* s) { //Bruno
 
     if (!encontrou) {
         printf("Não existem lugares disponíveis neste piso.");
-            return -1;
+        return -1;
     }
 
 
@@ -433,12 +431,12 @@ int registarEntradaVeiculo(Sistema* s) { //Bruno
     novo.lugar = lugar - 1;
 
 
-	//registar data e hora de entrada
+    //registar data e hora de entrada
     printf("Hora de entrada (HH:MM): ");
     scanf("%s", novo.horaEntrada);
 
 
-	//estado inicial do estacionamento
+    //estado inicial do estacionamento
     novo.estado = LUGAR_OCUPADO;
 
 
@@ -446,7 +444,7 @@ int registarEntradaVeiculo(Sistema* s) { //Bruno
     s->parque.mapa[piso][novo.fila][novo.lugar] = LUGAR_OCUPADO;
 
 
-	//adicionar a lista de estacionamentos
+    //adicionar a lista de estacionamentos
     s->estacionamentos[s->totalEstacionamentos++] = novo;
 
 
@@ -461,13 +459,13 @@ int atribuirLugar(Sistema* s, int piso, int* filaOut, int* lugarOut) //Bruno
 {
     //valida entradas
     if (s == NULL || filaOut == NULL || lugarOut == NULL)
-		return 1;
+        return 1;
 
     //verifica validade piso
     if (piso < 0 || piso >= s->parque.pisos)
         return 1; //caso o piso seja invalido return 1
 
-	const int filas = s->parque.filasPorPiso;
+    const int filas = s->parque.filasPorPiso;
     const int lugares = s->parque.LugaresPorFila;
 
     if (filas <= 0 || lugares <= 0) {
@@ -540,7 +538,7 @@ void alterarSaida(int numEntrada) {                                          //O
 
     printf("Nova hora de saida (hh mm): ");
     scanf("%d %d", &parqueRegisto[numEntrada].saida.hora,
-                   &parqueRegisto[numEntrada].saida.minuto);
+        &parqueRegisto[numEntrada].saida.minuto);
 
     printf("Saida alterada com sucesso!\n");
 
@@ -549,9 +547,9 @@ void alterarSaida(int numEntrada) {                                          //O
 
 }
 
-void anularSaida(int numEntrada) {                                   
+void anularSaida(int numEntrada) {
     if (numEntrada < 0) return;                                      //O veiculo ja deve ter saida registada (ativo == 0)
-                                                                     //Se for inválido, a função não faz
+    //Se for inválido, a função não faz
     parqueRegisto[numEntrada].ativo = 1;
     printf("Saida anulada!\n");
 

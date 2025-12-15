@@ -31,7 +31,7 @@
 #define MAX_FILA 26 // De A a Z
 #define MAX_LUGARES 50
 #define MAX_TARIFAS 10 // Limite máximo de planos de tarifas com margem [Samuel]
-
+#define MAX_ESTACIONAMENTOS 50000
 
 //==========================================
 //		ENUMERAÇÕES (Objetivo de padronizar estados e codigos)
@@ -91,7 +91,7 @@ typedef struct sistema {
 
 	TARIFARIO tarifas[MAX_TARIFAS];
 	int totalTarifas;
-
+	VAGAS estacionamentos[MAX_ESTACIONAMENTOS];
 	int totalEstacionamentos;
 
 	int ultimoNumEntrada;
@@ -112,7 +112,7 @@ FILE* abrirArquivo(const char* caminho, const char* modo);
 ResultadoLeitura primeiraLeitura(SISTEMA* s);
 ResultadoLeitura leituraConstante(SISTEMA* s);
 // Binario
-void guardarBinario(SISTEMA* s);
+int guardarBinario(SISTEMA* s);
 int carregarBinario(SISTEMA* s);
 // Texto
 void carregarEstacionamentosDeFicheiro(SISTEMA* s);
