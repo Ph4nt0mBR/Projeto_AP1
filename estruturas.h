@@ -112,7 +112,7 @@ FILE* abrirArquivo(const char* caminho, const char* modo);
 ResultadoLeitura primeiraLeitura(SISTEMA* s);
 ResultadoLeitura leituraConstante(SISTEMA* s);
 // Binario
-void guardarBinario(SISTEMA* s);
+int guardarBinario(SISTEMA* s);
 int carregarBinario(SISTEMA* s);
 // Texto
 void carregarEstacionamentosDeFicheiro(SISTEMA* s);
