@@ -319,45 +319,44 @@ void carregarTarifasDeFicheiro(SISTEMA* s) //Bruno
     printf("Tarifas carregadas com sucesso: %d\n", s->totalTarifas);
 }
 
-void carregarEstacionamentosDeFicheiro(SISTEMA* s) { //Bruno
+void carregarEstacionamentosDeFicheiro(SISTEMA* s) { // Bruno
 
-    FILE* f = abrirArquivo(ESTACIONAMENTOS_PATH, "r");
-
-
-    //verifica se o sistema e valido
+    // verifica se o sistema é válido
     if (s == NULL) {
         fprintf(stderr, "Erro: sistema nulo.\n\n");
-        return; //se nao for, nao carrega
-
+        return;
     }
-    FILE* f = abrirArquivo("estacionamentos.txt", "r");
 
+    FILE* f = abrirArquivo(ESTACIONAMENTOS_PATH, "r");
     if (!f) {
         printf("Houve um erro ao abrir o ficheiro.\n");
         return;
     }
 
     s->totalEstacionamentos = 0;
-    Estacionamento e;
-    while (fscanf(f, "%d %s %s %d %d %d %d %f\n",
-        &e.numEntrada,
+
+    VAGAS e; //borrava-se aqui pq usei estacionamentos em vez de VAGAS lol
+    while (fscanf(f, "%d %10s %10s %d %c %d %5s %f",
+        &e.id,
         e.matricula,
-        e.tipoVeiculo,
-        &e.piso,
+        e.dataEntrada,   // mantido como estava logicamente (campo existente)
+        &e.andar,
         &e.fila,
         &e.lugar,
-        &e.horaEntrada,
-        &e.valorPago) == 8) {
+        e.horaEntrada,
+        &e.estado        // valor lido, mesmo que depois seja ajustado
+    ) == 8) {
+
         if (s->totalEstacionamentos >= MAX_ESTACIONAMENTOS) {
             fprintf(stderr, "Limite MAX_ESTACIONAMENTOS ultrapassado.\n");
             break;
-
         }
-        s->estacionamentos[s->totalEstacionamentos++] = e; //// adiciona 'e' na posição atual e incrementa o counter
+
+        s->estacionamentos[s->totalEstacionamentos++] = e;
     }
+
     fclose(f);
     printf("Estacionamentos carregados com sucesso: %d\n", s->totalEstacionamentos);
-
 }
 
 
