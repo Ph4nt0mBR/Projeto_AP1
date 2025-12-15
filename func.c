@@ -27,6 +27,14 @@
 // Utilitários
 //=======================================================
 
+void trimTexto(char* s) {
+    if (!s) return;
+    size_t n = strlen(s);
+    while (n > 0 && (s[n - 1] == '\n' || s[n - 1] == '\r' || s[n - 1] == ' ' || s[n - 1] == '\t')) {
+        s[--n] = '\0';
+    }
+}
+
 FILE* abrirArquivo(const char* caminho, const char* modo) {     //Função pra abrir tanto .txt ("r", "w", "a", "r+", "w+", "a+") quanto .bin ("rb", "wb", "ab", "rb+", "wb+", "ab+")
     return fopen(caminho, modo);
 }
@@ -47,7 +55,7 @@ char colunaIndice_Char(const PARQUE* p, int intParaChar) { // Converte int -> le
 	return '?'; // Retorna '?' se o int não for válido
 }
 
-int coordenadaValida(const PARQUE* p, int andar, char, char filaChar, int lugar) {  //Verifica se o lugar está dentro dos limites do estacionamento
+int coordenadaValida(const PARQUE* p, int andar, char filaChar, int lugar) {  //Verifica se o lugar está dentro dos limites do estacionamento
     if (!p) return 0;
     if (andar < 0 || andar >= p->pisos) return 0;
 
@@ -63,7 +71,7 @@ int coordenadaValida(const PARQUE* p, int andar, char, char filaChar, int lugar)
 // Guardar Info
 //=======================================================
 
-void guardarBinario(SISTEMA* s) {
+int guardarBinario(SISTEMA* s) {
     if (!s) {
         prinft(stderr, "Erro ao guardar dados!!\n");
         return;
@@ -71,15 +79,22 @@ void guardarBinario(SISTEMA* s) {
     FILE* f = abrirArquivo(BIN_PATH, "wb");
     if (!f) {
         printf(stderr, "Erro ao abrir/criar ficheiro %s!!\n", BIN_PATH);
-        fclose(f);
-        return;
-    }
-    if (fclose(f) != 0) {
-        printf(stderr, "Erro ao fechar ficheiro %s!!\n", BIN_PATH);
         return;
     }
 
+    size_t escritos = frwite(s, sizeof(SISTEMA), 1, f);
+	fflush(f); //Garantir que os dados foram escritos no disco
+    if (fclose(f) != 0) {
+        printf(stderr, "Erro ao fechar ficheiro %s!!\n", BIN_PATH);
+        return 0;
+    }
+
+    if (escritos != 1) {
+        printf(stderr, "Erro ao escrever em %s!!\n", BIN_PATH);
+        return 0;
+    }
 	printf("Dados guardados com sucesso em: %s\n", BIN_PATH);
+    return 1;
 }
 
 //=======================================================
@@ -111,15 +126,12 @@ int carregarBinario(SISTEMA* s) {
         printf(stderr, "Aviso: tamanho do dados.bin inesperado (%ld). Lendo os dados de texto.\n", sz);
         return 0;
     }
-
     size_t lidos = fread(s, sizeof(SISTEMA), 1, f);
     fclose(f);
-
     if (lidos != 1) {
         printf(stderr, "Erro ao ler dados.bin. Lendo os dados de texto.\n");
         return 0;
     }
-
     printf("Dados carregados com sucesso do ficheiro binário.\n");
     return 1;
 }
@@ -132,7 +144,6 @@ ResultadoLeitura leituraConstante(SISTEMA* s) {
     }
 
     printf("Binário não disponível. Carregando dados de texto.\n"); // Abre o .txt se n tiver o .bin [Samuel]
-
     carregarTarifasDeFicheiro(s);
     carregarEstacionamentosDeFicheiro(s);
 
@@ -155,10 +166,138 @@ ResultadoLeitura primeiraLeitura(SISTEMA* s){
     return LER_OK;
 }
 
+//====================================================
+// Texto: tarifas e estacionamentos 
+//====================================================
 
-//----------------------------------------------------
+void carregarTarifasDeFicheiro(SISTEMA* s) //Bruno
+{
+    //verifica se o sistema e valido
+    if (!s) {
+        fprintf(stderr, "Erro: sistema nulo.\n\n");
+        return; //se nao for, nao carrega
+    }
+
+    FILE* f = abrirArquivo(TARIFAS_PATH, "r"); //abre o arquivo de tarifas em read only
+    if (!f) {
+        printf(esterr, "Erro ao abrir o ficheiro %s.\n ", TARIFAS_PATH);
+        return; //se falhar a abrir, sai
+    }
+
+    s->totalTarifas = 0;
+    char linha[256];
+
+    while (fgets(linha, sizeof(linha), f) != NULL) { //le todas as linhas do arquivo
+        //ignora linhas em branco↓
+        if (linha[0] == '\0' || linha[0] == '\n') continue;
+
+        //etiqueta e valor (tirados do tarifas.txt)
+        char valorStr[32] = {0};
+        char etiqueta[16] = {0};
+
+        if (sscanf(linha, "%15s %31s", etiqueta, valorStr) != 2) { //separa os dois valores diferentes, etiqueta e valor
+            printf(stderr, "Linha de tarifa invalida: %s\n", linha); //mensagem de erro caso a linha nao esteja no formato correto
+            continue; //passa pra a proxima linha
+        }
+
+		valotStr[strcspn(valorStr, "€")] = '\0'; //remove o simbolo de euro se existir
+        trimTexto(valorStr);
+        //vai converter a string para um float
+        char* endptr = NULL;
+        float valor = strtof(valorStr, &endptr);
+
+        if (endptr == valorStr) { //verifica se o strtof falhou (strtof é o que converte string para float)
+            fprintf(stderr, "Valor de tarifa invalido: %s", linha);
+            continue;
+
+        }
+
+        //mensagem de erro se passar do maximo
+        if (s->totalTarifas >= MAX_TARIFAS) {
+            fprintf(stderr, "Limite MAX_TARIFAS atingido. Ignorando restante.\n");
+            break;
+        }
+
+        //guarda
+        TARIFARIO t;
+        t.valor = valor;
+        //garante que a string termina em null
+        strncpy(t.etiqueta, etiqueta, sizeof(t.etiqueta) - 1);
+        t.etiqueta[sizeof(t.etiqueta) - 1] = '\0';
+        s->tarifas[s->totalTarifas++] = t;
+    }
+    fclose(f);
+    printf("Tarifas carregadas com sucesso: %d\n", s->totalTarifas);
+}
+
+void carregarEstacionamentosDeFicheiro(SISTEMA* s) { // Bruno
+
+    // verifica se o sistema é válido
+    if (!s) {
+        fprintf(stderr, "Erro: sistema nulo.\n\n");
+        return;
+    }
+
+    FILE* f = abrirArquivo(ESTACIONAMENTOS_PATH, "r");
+    if (!f) {
+        printf("Houve um erro ao abrir o ficheiro.\n");
+        return;
+    }
+
+    s->totalEstacionamentos = 0;
+    Estacionamento e;
+
+    while (fscanf(f, "%d %10s %10s %d %c %d %5s %f",
+        &e.id,
+        e.matricula,
+        e.dataEntrada,   // mantido como estava logicamente (campo existente)
+        &e.andar,
+        &e.fila,
+        &e.lugar,
+        e.horaEntrada,
+        &e.estado) == 8) {// valor lido, mesmo que depois seja ajustado
+
+        if (s->totalEstacionamentos >= MAX_ESTACIONAMENTOS) {
+            fprintf(stderr, "Limite MAX_ESTACIONAMENTOS ultrapassado.\n");
+            break;
+        }
+
+        s->estacionamentos[s->totalEstacionamentos++] = e;
+    }
+
+    fclose(f);
+    printf("Estacionamentos carregados com sucesso: %d\n", s->totalEstacionamentos);
+}
+
+
+//====================================================
 // Inicialização e carregamento de dados
-//----------------------------------------------------
+//====================================================
+
+void inicializarSistema(SISTEMA* s) { //Bruno
+    if (!s) return;
+
+    //reset basico
+    s->totalTarifas = 0;
+    s->totalEstacionamentos = 0;
+    s->ultimoNumEntrada = 0;
+
+    s->parque.pisos = 1;
+    s->parque.filasPorPiso = 1;
+    s->parque.lugaresPorFila = 1;
+
+    //inicializar matriz do parque: todos os lugares livres
+    for (int a = 0; a < MAX_PISO; a++) {
+        for (int f = 0; f < MAX_FILA; f++) {
+            for (int l = 0; l < MAX_LUGARES; l++) {
+                s->parque.mapa[a][f][l] = LUGAR_LIVRE;
+            }
+        }
+    }
+    (void)leituraConstante(s);    
+}
+
+
 void configurarParque(PARQUE* p) { //Bruno
     //Verifica se o ponteiro e valido↓
     if (p == NULL) {
@@ -208,155 +347,11 @@ void configurarParque(PARQUE* p) { //Bruno
     }
 }
 
-void carregarTarifasDeFicheiro(SISTEMA* s) //Bruno
-{
-    //verifica se o sistema e valido
-    if (s == NULL) {
-        fprintf(stderr, "Erro: sistema nulo.\n\n");
-        return; //se nao for, nao carrega
 
-    }
-
-    FILE* f = abrirArquivo(TARIFAS_PATH, "r"); //abre o arquivo de tarifas em read only
-    if (!f) {
-        return; //se falhar a abrir, sai
-    }
-
-    s->totalTarifas = 0;
-
-    char linha[256];
-    while (fgets(linha, sizeof(linha), f) != NULL) { //le todas as linhas do arquivo
-        //ignora linhas em branco↓
-        if (linha[0] == '\0' || linha[0] == '\n')
-            continue;
-
-        //etiqueta e valor (tirados do tarifas.txt)
-        char valorStr[32] = { 0 };
-        char etiqueta[16] = { 0 };
-
-        if (sscanf(linha, "%15s %31s", etiqueta, valorStr) != 2) { //separa os dois valores diferentes, etiqueta e valor
-            fprintf(stderr, "Linha de tarifa invalida: %s\n", linha); //mensagem de erro caso a linha nao esteja no formato correto
-            continue; //passa pra a proxima linha
-        }
-
-        //vai converter a string para um float
-        char* endptr = NULL;
-        float valor = strtof(valorStr, &endptr);
-
-        if (endptr == valorStr) { //verifica se o strtof falhou (strtof é o que converte string para float)
-            fprintf(stderr, "Valor de tarifa invalido: %s", linha);
-            continue;
-
-        }
-
-        //mensagem de erro se passar do maximo
-        if (s->totalTarifas >= MAX_TARIFAS) {
-            fprintf(stderr, "Limite MAX_TARIFAS atingido. Ignorando restante.\n");
-            break;
-        }
-
-        //guarda
-        TARIFARIO t;
-        t.valor = valor;
-        //garante que a string termina em nulk
-        strncpy(t.etiqueta, etiqueta, sizeof(t.etiqueta) - 1);
-        t.etiqueta[sizeof(t.etiqueta) - 1] = '\0';
-
-        s->tarifas[s->totalTarifas++] = t;
-    }
-
-    fclose(f);
-    printf("Tarifas carregadas com sucesso: %d\n", s->totalTarifas);
-}
-
-void carregarEstacionamentosDeFicheiro(SISTEMA* s) { // Bruno
-
-    // verifica se o sistema é válido
-    if (s == NULL) {
-        fprintf(stderr, "Erro: sistema nulo.\n\n");
-        return;
-    }
-
-    FILE* f = abrirArquivo(ESTACIONAMENTOS_PATH, "r");
-    if (!f) {
-        printf("Houve um erro ao abrir o ficheiro.\n");
-        return;
-    }
-
-    s->totalEstacionamentos = 0;
-
-    VAGAS e; //borrava-se aqui pq usei estacionamentos em vez de VAGAS lol
-    while (fscanf(f, "%d %10s %10s %d %c %d %5s %f",
-        &e.id,
-        e.matricula,
-        e.dataEntrada,   // mantido como estava logicamente (campo existente)
-        &e.andar,
-        &e.fila,
-        &e.lugar,
-        e.horaEntrada,
-        &e.estado        // valor lido, mesmo que depois seja ajustado
-    ) == 8) {
-
-        if (s->totalEstacionamentos >= MAX_ESTACIONAMENTOS) {
-            fprintf(stderr, "Limite MAX_ESTACIONAMENTOS ultrapassado.\n");
-            break;
-        }
-
-        s->estacionamentos[s->totalEstacionamentos++] = e;
-    }
-
-    fclose(f);
-    printf("Estacionamentos carregados com sucesso: %d\n", s->totalEstacionamentos);
-}
 
 
 // Removi as funções de carregar tarifas e estacionamento. Vou converter em uma função que inicia a primeira leitura dos arquivos .atxt e depois dos arquivos em .bin [Samuel]
 
-void inicializarSistema(SISTEMA* s) { //Bruno
-    int a, f, l;
-
-    //reset geral dos contadores
-    s->totalTarifas = 0;
-    s->totalEstacionamentos = 0;
-    s->ultimoNumEntrada = 0;
-
-    //configuração inicial (valores minimos validos)
-    s->parque.pisos = 1;
-    s->parque.filasPorPiso = 1;
-    s->parque.lugaresPorFila = 1;
-
-    //inicializar matriz do parque: todos os lugares livres
-    for (a = 0; a < MAX_PISO; a++) {
-        for (f = 0; f < MAX_FILA; f++) {
-            for (l = 0; l < MAX_LUGARES; l++) {
-                s->parque.mapa[a][f][l] = LUGAR_LIVRE;
-            }
-        }
-    }
-
-    /* //reset das tarifas agrupadas
-     s->tarifasBase.valor_T1 = 0.0f;
-     s->tarifasBase.valor_T2 = 0.0f;
-     s->tarifasBase.valor_T3 = 0.0f;
-     s->tarifasBase.valor_T4 = 0.0f;
- */
- //reset das tarifas individuais
-    for (a = 0; a < MAX_TARIFAS; a++) {
-        s->tarifas[a].valor = 0.0f;
-        strcpy(s->tarifas[a].etiqueta, "");
-    }
-
-    //reset geral da lista de estacionamentos
-    for (a = 0; a < MAX_ESTACIONAMENTOS; a++) {
-        s->estacionamentos[a].id = 0;
-        s->estacionamentos[a].estado = LUGAR_LIVRE;
-        strcpy(s->estacionamentos[a].matricula, "");
-        strcpy(s->estacionamentos[a].dataEntrada, "");
-        strcpy(s->estacionamentos[a].horaEntrada, "");
-        strcpy(s->estacionamentos[a].dataSaida, "");
-    }
-    strcpy(s->estacionamentos[a].horaSaida, "");
-}
 
 // Carregar ficheiros de dados
 primeiraLeitura(s);

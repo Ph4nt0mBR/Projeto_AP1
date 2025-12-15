@@ -1,37 +1,46 @@
-#ifndef funcoes.h
-#define funcoes.h
+#ifndef FUNCOES_H
+#define FUNCOES_H
 
-#include "estruturas.h" // Adicionei estas biblios pois n achei em nenhum outro lugar  __Lu >:3
-
+#include "estruturas.h"
 
 //-----------------------------------------------
 //  Inicialização e carregamento de dados
 //-----------------------------------------------
-void configurarParque(); 
-void carregarTarifasDeFicheiro();        //__Lu >:3
-void carregarEstacionamentosDeFicheiro();
-void inicializarSistema();
-
-
-
+void configurarParque(PARQUE* p);
+ResultadoLeitura primeiraLeitura(SISTEMA* s);
+ResultadoLeitura leituraConstante(SISTEMA* s);
+void inicializarSistema(SISTEMA* s);
 
 //-----------------------------------------------
-//  Menus
+//  Ficheiros (helpers)
 //-----------------------------------------------
-void mostrarMenuPrincipal();
-void mostrarOcupacaoPisos();
+FILE* abrirArquivo(const char* caminho, const char* modo);
+
+// Binário
+int guardarBinario(SISTEMA* s);
+int carregarBinario(SISTEMA* s);
+
+// Texto
+void carregarTarifasDeFicheiro(SISTEMA* s);
+void carregarEstacionamentosDeFicheiro(SISTEMA* s);
+
+//-----------------------------------------------
+//  Menus (se precisarem do sistema, passem ponteiro)
+//-----------------------------------------------
+void mostrarMenuPrincipal(SISTEMA* s);
+void mostrarOcupacaoPisos(SISTEMA* s);
 
 //-----------------------------------------------
 //  Gestão da entrada de veículos
 //-----------------------------------------------
-int registarEntradaVeiculo();
-int atribuirLugar(int piso);
+int registarEntradaVeiculo(SISTEMA* s);
+int atribuirLugar(SISTEMA* s, int piso, int* filaOut, int* lugarOut);
 void mostrarTicketEntrada(int numEntrada);
 
 //-----------------------------------------------
 //  Gestão de saídas de veículos
 //-----------------------------------------------
-int registarSaidaVeiculo();
+int registarSaidaVeiculo(void);
 float calcularValorAPagar(int numEntrada);
 void mostrarTicketSaida(int numEntrada);
 void alterarSaida(int numEntrada);
@@ -47,45 +56,44 @@ void eliminarEstacionamento(int numEntrada);
 //-----------------------------------------------
 //  Gestão de lugares indisponíveis
 //-----------------------------------------------
-void marcarLugarIndisponivel();
-void reverterLugarIndisponivel();
+void marcarLugarIndisponivel(void);
+void reverterLugarIndisponivel(void);
 
 //-----------------------------------------------
-//  Mapa de ocupação por piso
+//  Mapa do piso
 //-----------------------------------------------
 void mostrarMapaPiso(int piso);
 
 //-----------------------------------------------
-//  Persistência
+//  Persistência (texto/logs)
 //-----------------------------------------------
-void guardarDadosEmBinario();
-void gravarEstacionamentosTexto();
-void gravarErros();
+void gravarEstacionamentosTexto(SISTEMA* s);
+void gravarErros(SISTEMA* s);
 
 //-----------------------------------------------
-//  Listagens com paginação
+//  Listagens e paginação
 //-----------------------------------------------
-void listarEstacionamentos();
-void avancarPagina();
-void recuarPagina();
+void listarEstacionamentos(void);
+void avancarPagina(void);
+void recuarPagina(void);
 void mostrarPagina(int pagina);
-void gravarListagemTXT();
+void gravarListagemTXT(void);
 
 //-----------------------------------------------
-//  Funcionalidades adicionais (alínea 11)
+//  Funcionalidades adicionais
 //-----------------------------------------------
-void funcionalidadeExtra1();
-void funcionalidadeExtra2();
-void funcionalidadeExtra3();
+void funcionalidadeExtra1(void);
+void funcionalidadeExtra2(void);
+void funcionalidadeExtra3(void);
 
 //-----------------------------------------------
-//  Extras opcionais (E1, E2, E3)
+//  Extras opcionais
 //-----------------------------------------------
-void gerarGrafico();
-void gerarTabelaDinamica();
-void gerarCSV();
+void gerarGrafico(void);
+void gerarTabelaDinamica(void);
+void gerarCSV(void);
 
-#endif /* funcoes.h */
+#endif /* FUNCOES_H */
 
 
 

@@ -98,28 +98,7 @@ typedef struct sistema {
 } SISTEMA; //tenho de rever esta struct -- Já ta revisada [Samuel]
 
 
-//=======================================================
-//		PROTÓTIPOS
-//=======================================================
-
-
-void configurarParque(PARQUE* p);
-
-//--------------------------------
-// Funções que lidam com ficheiros
-//--------------------------------
-FILE* abrirArquivo(const char* caminho, const char* modo);
-ResultadoLeitura primeiraLeitura(SISTEMA* s);
-ResultadoLeitura leituraConstante(SISTEMA* s);
-// Binario
-int guardarBinario(SISTEMA* s);
-int carregarBinario(SISTEMA* s);
-// Texto
-void carregarEstacionamentosDeFicheiro(SISTEMA* s);
-void carregarTarifasDeFicheiro(SISTEMA* s);
-
-
-void inicializarSistema(SISTEMA* s);
+/*Removi os protótipos daqui e deixei todos no funcoes.h*/
 
 
 
