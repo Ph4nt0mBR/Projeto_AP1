@@ -4,7 +4,7 @@
 	Data 27/11
 
 	Nota: Usar isso daqui pra manter o menu mais organizado.
-	Puxar aquele monte de declarações de funções do menu.c pra cá. [Samuel]
+	Puxar aquele monte de declaraÃ§Ãµes de funÃ§Ãµes do menu.c pra cÃ¡. [Samuel]
 */
 
 #define _CRT_SECURE_NO_WARNINGS
@@ -18,7 +18,7 @@
 
 
 //=======================================
-// PROTÓTIPOS
+// PROTÃ“TIPOS
 //=======================================
 
 void entradaVeiculo();
