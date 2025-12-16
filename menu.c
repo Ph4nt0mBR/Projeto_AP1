@@ -1,30 +1,47 @@
-#include "menu.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <locale.h>
 
-//estas funções ainda não existem - crialas depois
+#define PISOS 5
+#define VAGAS_POR_PISO 50
+#define MAX_VEICULOS (PISOS * VAGAS_POR_PISO)
 
-//Tirei as funções daqui e coloquei em menu.h
-//Vamo manter aqui só o q ta sendo usado [Samuel]
+// ===== STRUCT PARA VEÍCULOS =====
+typedef struct {
+    char matricula[10];
+    int piso;
+    int vaga;
+    int horaEntrada;
+    int minutoEntrada;
+    int ativo; // 1 = no parque, 0 = saiu
+} Veiculo;
 
-//Função para mostrar os lugares disponiveis.
+// ===== ARRAYS DO SISTEMA =====
+int vagas[PISOS][VAGAS_POR_PISO]; // 0 = livre, 1 = ocupada
+Veiculo veiculos[MAX_VEICULOS];
+int totalVeiculos = 0;
 
-void mostrarLugaresDisponiveis() {
+// ===== FUNÇÕES =====
+void mostrarLugaresDisponiveis(void) {
+    printf("Lugares disponiveis:\n");
 
-printf("Lugares disponiveis:\n");
-printf("Piso 1: %d\n", 23);
-printf("Piso 2: %d\n", 41);
-printf("Piso 3: %d\n", 18);
-printf("Piso 4: %d\n", 50);
-printf("Piso 5: %d\n\n", 27);
-
+    for (int i = 0; i < PISOS; i++) {
+        int livres = 0;
+        for (int j = 0; j < VAGAS_POR_PISO; j++) {
+            if (vagas[i][j] == 0)
+                livres++;
+        }
+        printf("Piso %d: %d\n", i + 1, livres);
+    }
+    printf("\n");
 }
-mostrarMenuPrincipal() {    //troquei o nome pq ja tem um int main no main.c __Lu
-    setlocale(LC_ALL, "portuguese");
-   int opcao;
+
+void mostrarMenuPrincipal(void) {
+    int opcao;
 
     do {
         system("clear"); // no Windows usar "cls"
 
-        //Mostar sempre lugares disponiveis
         mostrarLugaresDisponiveis();
 
         printf("=== MENU PRINCIPAL ===\n");
@@ -32,39 +49,36 @@ mostrarMenuPrincipal() {    //troquei o nome pq ja tem um int main no main.c __L
         printf("2 - Consultar ocupação\n");
         printf("3 - Saida de veiculo + cobrança\n");
         printf("4 - Gestao de lugares indisponiveis\n");
-        printf("5 - Mapa de ocupão por piso\n");
+        printf("5 - Mapa de ocupação por piso\n");
         printf("6 - Listagens com paginação\n");
-        printf("7 - Extras (Graficos / CSV / tavelas)\n");
-		printf("8 - Gravar dados\n");       //<-- Concordo q tem q ter isso, mas tbm tem q ter a func no (9 - sair) pq tem q salvar antes de sair [Samuel]
+        printf("7 - Extras (Graficos / CSV / tabelas)\n");
+        printf("8 - Gravar dados\n");
         printf("9 - Sair\n");
         printf("======================\n");
         printf("Opção: ");
 
         scanf("%d", &opcao);
+        while (getchar() != '\n');
 
-
-        switch(opcao) {
-
-        case 1: entradaVeiculo(); break;
-        case 2: consultarOcupacao(); break;
-        case 3: saidaVeiculo(); break;
-        case 4: gerirLugares(); break;
-        case 5: mostrarMapaPiso(); break;
-        case 6: listarComPaginacao(); break;
-        case 7: extras(); break;
-        case 8: gravarDados(); break;
-
-        case 9:
-            printf("A sair...\n");
-            break;
-        default:
-            printf("Opção invalida! Tente novamente.\n");
+        switch (opcao) {
+            case 1: /* entradaVeiculo(); */ break;
+            case 2: /* consultarOcupacao(); */ break;
+            case 3: /* saidaVeiculo(); */ break;
+            case 4: /* gerirLugares(); */ break;
+            case 5: /* mostrarMapaPiso(); */ break;
+            case 6: /* listarComPaginacao(); */ break;
+            case 7: /* extras(); */ break;
+            case 8: /* gravarDados(); */ break;
+            case 9:
+                printf("A sair...\n");
+                break;
+            default:
+                printf("Opção invalida!\n");
         }
-        printf("Pressione ENTER para continuar...");
-        getchar(); getchar();
-   }    while(opcao != 9);
 
-   return 0;
+        printf("Pressione ENTER para continuar...");
+        getchar();
+
+    } while (opcao != 9);
 }
 
-//!!!!Adicionar depois Arrays pra representar as vagas,  LOOP pra manter o menu disponivel para o usuario e structs pra guardar informaçoes dos veiculos __ Lu
