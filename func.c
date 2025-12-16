@@ -35,7 +35,7 @@ FILE* abrirArquivo(const char* caminho, const char* modo) {     //Função pra a
 }
 
 int colunaChar_Indice(char letraParaNum) { // Converte os char pra int
-	letraParaNum = (char)toupper((unsigned char)letraParaNum);  //  o unsigned char evita problemas com chars acentuados, o char garante que só char entre no toupper [Samuel]
+    letraParaNum = (char)toupper((unsigned char)letraParaNum);  //  o unsigned char evita problemas com chars acentuados, o char garante que só char entre no toupper [Samuel]
     if (letraParaNum >= 'A' && letraParaNum <= 'Z') {
         return letraParaNum - 'A';
     }
@@ -45,16 +45,16 @@ int colunaChar_Indice(char letraParaNum) { // Converte os char pra int
 char colunaIndice_Char(const PARQUE* p, int intParaChar) { // Converte int -> letra com validação contra PARQUE ou MAX_FILA
     int limite = p ? p->filasPorPiso : MAX_FILA; //verifica se p e nulo, se for usa o maximo
     if (intParaChar >= 0 && intParaChar < limite) {
-		return (char)('A' + intParaChar); //Manda de volta pra char -- Pode usar qnd for fazer printf [Samuel]
+        return (char)('A' + intParaChar); //Manda de volta pra char -- Pode usar qnd for fazer printf [Samuel]
     }
-	return '?'; // Retorna '?' se o int não for válido
+    return '?'; // Retorna '?' se o int não for válido
 }
 
 int coordenadaValida(const PARQUE* p, int andar, char filaChar, int lugar) {  //Verifica se o lugar está dentro dos limites do estacionamento
     if (!p) return 0;
     if (andar < 0 || andar >= p->pisos) return 0;
 
-	int filaIdx = colunaChar_Indice(filaChar); // Mudei a função de converter q tava aqui dentro pra fora, por pura frescura [Samuel]
+    int filaIdx = colunaChar_Indice(filaChar); // Mudei a função de converter q tava aqui dentro pra fora, por pura frescura [Samuel]
     //verifica se fila e valida↓
     if (filaIdx < 0 || filaIdx >= p->filasPorPiso) return 0;//verifica se lugar e valido↓
     if (lugar < 0 || lugar >= p->lugaresPorFila) return 0;
@@ -78,7 +78,7 @@ int guardarBinario(SISTEMA* s) {
     }
 
     size_t escritos = fwrite(s, sizeof(SISTEMA), 1, f);
-	fflush(f); //Garantir que os dados foram escritos no disco
+    fflush(f); //Garantir que os dados foram escritos no disco
     if (fclose(f) != 0) {
         fprintf(stderr, "Erro ao fechar ficheiro %s!!\n", BIN_PATH);
         return 0;
@@ -88,7 +88,7 @@ int guardarBinario(SISTEMA* s) {
         fprintf(stderr, "Erro ao escrever em %s!!\n", BIN_PATH);
         return 0;
     }
-	printf("Dados guardados com sucesso em: %s\n", BIN_PATH);
+    printf("Dados guardados com sucesso em: %s\n", BIN_PATH);
     return 1;
 }
 
@@ -125,17 +125,17 @@ int carregarBinario(SISTEMA* s) {
 ResultadoLeitura leituraConstante(SISTEMA* s) {
     if (!s) return LER_FALHA_ABRIR;
 
-	if (carregarBinario(s)) {// Só carrega dados.bin se existir
+    if (carregarBinario(s)) {// Só carrega dados.bin se existir
         return LER_OK;
     }
 
     return LER_FALHA_ABRIR;
 }
 
-ResultadoLeitura primeiraLeitura(SISTEMA* s){
+ResultadoLeitura primeiraLeitura(SISTEMA* s) {
     if (!s) return LER_FALHA_ABRIR;
 
-	configurarParque(&s->parque);   //1° Configura o parque
+    configurarParque(&s->parque);   //1° Configura o parque
 
     carregarTarifasDeFicheiro(s);   //2° carrega os ficheiros txt
     carregarEstacionamentosDeFicheiro(s);
@@ -152,7 +152,7 @@ ResultadoLeitura primeiraLeitura(SISTEMA* s){
 }
 
 //====================================================
-// Texto: tarifas e estacionamentos 
+// Texto: tarifas e estacionamentos
 //====================================================
 
 void carregarTarifasDeFicheiro(SISTEMA* s) {//Bruno
@@ -164,7 +164,7 @@ void carregarTarifasDeFicheiro(SISTEMA* s) {//Bruno
 
     FILE* f = abrirArquivo(TARIFAS_PATH, "r"); //abre o arquivo de tarifas em read only
     if (!f) {
-        printf(esterr, "Erro ao abrir o ficheiro %s.\n ", TARIFAS_PATH);
+        printf(stderr, "Erro ao abrir o ficheiro %s.\n ", TARIFAS_PATH);
         return; //se falhar a abrir, sai
     }
 
@@ -175,15 +175,15 @@ void carregarTarifasDeFicheiro(SISTEMA* s) {//Bruno
         if (linha[0] == '\0' || linha[0] == '\n') continue; //ignora linhas em branco
 
         //etiqueta e valor (tirados do tarifas.txt)
-        char valorStr[32] = {0};
-        char etiqueta[16] = {0};
+        char valorStr[32] = { 0 };
+        char etiqueta[16] = { 0 };
 
         if (sscanf(linha, "%15s %31s", etiqueta, valorStr) != 2) { //separa os dois valores diferentes, etiqueta e valor
             printf(stderr, "Linha de tarifa invalida: %s\n", linha); //mensagem de erro caso a linha nao esteja no formato correto
             continue; //passa pra a proxima linha
         }
 
-		valotStr[strcspn(valorStr, "€")] = '\0'; //remove o simbolo de euro se existir
+        valorStr[strcspn(valorStr, "€")] = '\0'; //remove o simbolo de euro se existir
         trimTexto(valorStr);
         //vai converter a string para um float
         char* endptr = NULL;
@@ -225,7 +225,7 @@ void carregarEstacionamentosDeFicheiro(SISTEMA* s) { // Bruno
     }
 
     s->totalEstacionamentos = 0;
-    VAGAS e = {0}; // FIX: Initialize all fields of 'e' to zero/default
+    VAGAS e = { 0 }; // FIX: Initialize all fields of 'e' to zero/default
 
     while (fscanf(f, "%d %10s %10s %d %c %d %5s %d",
         &e.id,
@@ -274,7 +274,7 @@ void inicializarSistema(SISTEMA* s) { //Bruno
             }
         }
     }
-    (void)leituraConstante(s);    
+    (void)leituraConstante(s);
 }
 
 
@@ -335,26 +335,28 @@ void configurarParque(PARQUE* p) { //Bruno
 
 // Carregar ficheiros de dados
 
-} //esta funcao e basicamente "formatar" o sistema. Tudo volta ao "estado inicial"
+//esta funcao e basicamente "formatar" o sistema. Tudo volta ao "estado inicial"
 
 //----------------------------------------------------
 // Menus
 //----------------------------------------------------
-void mostrarMenuPrincipal() {
+/*void mostrarMenuPrincipal() {
 
 }
 
 void mostrarOcupacaoPisos() {
 
 }
+*/
 
 //----------------------------------------------------
 // Entrada de veículos
 //----------------------------------------------------
-int registarEntradaVeiculo(Sistema* s) { //Bruno
+/*
+int registarEntradaVeiculo(SISTEMA* s) { //Bruno
     if (!s) return -1;
 
-    Estacionamento novo;
+    VAGAS novo;
 
     novo.numEntrada = ++s->ultimoNumEntrada;
 
@@ -428,8 +430,8 @@ int registarEntradaVeiculo(Sistema* s) { //Bruno
 
         return novo.numEntrada;
 }
-
-int atribuirLugar(Sistema* s, int piso, int* filaOut, int* lugarOut) //Bruno
+*/
+int atribuirLugar(SISTEMA* s, int piso, int* filaOut, int* lugarOut) //Bruno
 {
     //valida entradas
     if (s == NULL || filaOut == NULL || lugarOut == NULL)
@@ -440,7 +442,7 @@ int atribuirLugar(Sistema* s, int piso, int* filaOut, int* lugarOut) //Bruno
         return 1; //caso o piso seja invalido return 1
 
     const int filas = s->parque.filasPorPiso;
-    const int lugares = s->parque.LugaresPorFila;
+    const int lugares = s->parque.lugaresPorFila;
 
     if (filas <= 0 || lugares <= 0) {
         fprintf(stderr, "Nao tem capacidade definida: (filas = %d, lugares = %d", filas, lugares);
@@ -504,6 +506,7 @@ void mostrarTicketSaida(int numEntrada) {
 
 }
 
+/*
 void alterarSaida(int numEntrada) {                                          //Objetivo: Alterar a hora registada de saída de um veículo
     if (numEntrada < 0 || parqueRegisto[numEntrada].ativo == 1) {            //numEntrada → índice/registo do veículo no parque
         printf("Erro: Veiculo ainda no parque ou ID invalido!\n");
@@ -516,18 +519,18 @@ void alterarSaida(int numEntrada) {                                          //O
 
     printf("Saida alterada com sucesso!\n");
 
-}
+} */ //ta a dar asneira, TUDO q ta em comment assim ta a dar asneira cm erros que nao sao simples
 
 
-}
 
+/*
 void anularSaida(int numEntrada) {
     if (numEntrada < 0) return;                                      //O veiculo ja deve ter saida registada (ativo == 0)
     //Se for inválido, a função não faz
     parqueRegisto[numEntrada].ativo = 1;
     printf("Saida anulada!\n");
 
-}
+} */
 
 //----------------------------------------------------
 // Consulta, alteração e eliminação de registos
@@ -569,7 +572,7 @@ void guardarDadosEmBinario() {
 
 }
 
-void gravarEstacionamentosTexto() {
+/*void gravarEstacionamentosTexto() {
 
 }
 
@@ -629,3 +632,4 @@ void gerarTabelaDinamica() {
 void gerarCSV() {
 
 }
+*/
