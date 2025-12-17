@@ -80,6 +80,7 @@ typedef struct parametro_estacionamento {		//Informações dos veículos estacio
 	char horaEntrada[6];	/* hh:mm */
 	char dataSaida[11];		/* dd/mm/aaaa */
 	char horaSaida[6];		/* hh:mm */
+	char tipoVeiculo[20];
 
 	int andar; // de 0 a MAX_PISO-1
 	char fila; // de A = 0 a z = MAX_FILA-1
@@ -88,21 +89,24 @@ typedef struct parametro_estacionamento {		//Informações dos veículos estacio
 	EstadoLugar estado;		//LUGAR_LIVRE ou LUGAR_OCUPADO
 } VAGAS;
 
-typedef struct tarifario{
+typedef struct tarifario {
 	float valor;		//valor da tarifa
 	char etiqueta[10];	//etiqueta da tarifa (ex: normal, especial, etc)
 } TARIFARIO;
 
 typedef struct sistema {
 	PARQUE parque;
-
 	TARIFARIO tarifas[MAX_TARIFAS];
 	int totalTarifas;
-	VAGAS estacionamentos[MAX_ESTACIONAMENTOS];
+
 	int totalEstacionamentos;
+	VAGAS* estacionamentos; // <- mudar para ponteiro dinâmico
 
 	int ultimoNumEntrada;
 } SISTEMA; //tenho de rever esta struct -- Já ta revisada [Samuel]
+
+
+
 
 
 /*Removi os protótipos daqui e deixei todos no funcoes.h*/

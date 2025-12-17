@@ -254,10 +254,15 @@ void carregarEstacionamentosDeFicheiro(SISTEMA* s) { // Bruno
 // Inicialização e carregamento de dados
 //====================================================
 
-void inicializarSistema(SISTEMA* s) { //Bruno
+void inicializarSistema(SISTEMA* s) {
     if (!s) return;
 
-    //reset basico
+    s->estacionamentos = malloc(sizeof(VAGAS) * MAX_ESTACIONAMENTOS);
+    if (!s->estacionamentos) {
+        fprintf(stderr, "Erro ao alocar memoria para estacionamentos!\n");
+        exit(1);
+    }
+
     s->totalTarifas = 0;
     s->totalEstacionamentos = 0;
     s->ultimoNumEntrada = 0;
@@ -266,15 +271,10 @@ void inicializarSistema(SISTEMA* s) { //Bruno
     s->parque.filasPorPiso = 1;
     s->parque.lugaresPorFila = 1;
 
-    //inicializar matriz do parque: todos os lugares livres
-    for (int a = 0; a < MAX_PISO; a++) {
-        for (int f = 0; f < MAX_FILA; f++) {
-            for (int l = 0; l < MAX_LUGARES; l++) {
+    for (int a = 0; a < MAX_PISO; a++)
+        for (int f = 0; f < MAX_FILA; f++)
+            for (int l = 0; l < MAX_LUGARES; l++)
                 s->parque.mapa[a][f][l] = LUGAR_LIVRE;
-            }
-        }
-    }
-    (void)leituraConstante(s);
 }
 
 
@@ -352,39 +352,34 @@ void mostrarOcupacaoPisos() {
 //----------------------------------------------------
 // Entrada de veículos
 //----------------------------------------------------
-/*
+
 int registarEntradaVeiculo(SISTEMA* s) { //Bruno
     if (!s) return -1;
 
     VAGAS novo;
 
-    novo.numEntrada = ++s->ultimoNumEntrada;
+    // Usar 'id' em vez de 'numEntrada' (que não existe na struct)
+    novo.id = ++s->ultimoNumEntrada;
 
-    printf("Matriculas do veiculo: ");
+    printf("Matricula do veiculo: ");
     scanf("%s", novo.matricula);
 
-    printf("Tipo de veiculo (ex: 'Carro', 'Moto', 'Camiao'): ");)
-    scanf("%s", novo.tipoVeiculo);
-
-
+    // Removido: tipoVeiculo não existe na struct VAGAS
+    // printf("Tipo de veiculo (ex: 'Carro', 'Moto', 'Camiao'): ");
+    // scanf("%s", novo.tipoVeiculo);
 
     int piso; //escolher piso
     printf("Piso pretendido (0 a %d): ", s->parque.pisos - 1);
     scanf("%d", &piso);
 
-
-
     if (piso < 0 || piso >= s->parque.pisos) { //validação piso
-        printf("Piso inválido!
-            ");
-            return -1;
+        printf("Piso inválido!\n");
+        return -1;
     }
-
 
     // Procurar lugar livre no piso escolhido
     int fila, lugar;
     int encontrou = 0;
-
 
     for (fila = 0; fila < s->parque.filasPorPiso && !encontrou; fila++) {
         for (lugar = 0; lugar < s->parque.lugaresPorFila && !encontrou; lugar++) {
@@ -394,43 +389,46 @@ int registarEntradaVeiculo(SISTEMA* s) { //Bruno
         }
     }
 
-
     if (!encontrou) {
-        printf("Não existem lugares disponíveis neste piso.");
+        printf("Não existem lugares disponíveis neste piso.\n");
         return -1;
     }
 
-
     //guardar lugar atribuido
-    novo.piso = piso;
-    novo.fila = fila - 1;
+    novo.andar = piso;  // Usar 'andar' em vez de 'piso'
+
+    // ATENÇÃO: a struct usa char para fila
+    // Converter índice numérico para caractere (A, B, C, ...)
+    novo.fila = 'A' + (fila - 1);  // Converte para letra
+
     novo.lugar = lugar - 1;
 
-
     //registar data e hora de entrada
+    printf("Data de entrada (dd/mm/aaaa): ");
+    scanf("%s", novo.dataEntrada);
+
     printf("Hora de entrada (HH:MM): ");
     scanf("%s", novo.horaEntrada);
 
+    // Inicializar data e hora de saída como vazias
+    novo.dataSaida[0] = '\0';
+    novo.horaSaida[0] = '\0';
 
     //estado inicial do estacionamento
     novo.estado = LUGAR_OCUPADO;
 
-
-    //atualizar mapa
-    s->parque.mapa[piso][novo.fila][novo.lugar] = LUGAR_OCUPADO;
-
+    //atualizar mapa - usar indices numéricos para a matriz
+    s->parque.mapa[piso][fila - 1][lugar - 1] = LUGAR_OCUPADO;
 
     //adicionar a lista de estacionamentos
     s->estacionamentos[s->totalEstacionamentos++] = novo;
 
+    printf("Entrada registada com sucesso! Ticket Nº %d\n", novo.id);
+    printf("Lugar: Piso %d, Fila %c, Lugar %d\n", novo.andar, novo.fila, novo.lugar);
 
-    printf("Entrada registada com sucesso! Ticket Nº %d
-        ", novo.numEntrada);
-
-
-        return novo.numEntrada;
+    return novo.id;
 }
-*/
+
 int atribuirLugar(SISTEMA* s, int piso, int* filaOut, int* lugarOut) //Bruno
 {
     //valida entradas
@@ -492,6 +490,7 @@ void mostrarTicketEntrada(int numEntrada) {
 //----------------------------------------------------
 // Saída de veículos
 //----------------------------------------------------
+/*
 int registarSaidaVeiculo() {
 
     return 0;
@@ -506,7 +505,7 @@ void mostrarTicketSaida(int numEntrada) {
 
 }
 
-/*
+
 void alterarSaida(int numEntrada) {                                          //Objetivo: Alterar a hora registada de saída de um veículo
     if (numEntrada < 0 || parqueRegisto[numEntrada].ativo == 1) {            //numEntrada → índice/registo do veículo no parque
         printf("Erro: Veiculo ainda no parque ou ID invalido!\n");
@@ -535,6 +534,7 @@ void anularSaida(int numEntrada) {
 //----------------------------------------------------
 // Consulta, alteração e eliminação de registos
 //----------------------------------------------------
+/*
 void consultarEstacionamento(int numEntrada) {
 
 }
@@ -568,11 +568,12 @@ void mostrarMapaPiso(int piso) {
 //----------------------------------------------------
 // Persistência
 //----------------------------------------------------
+
 void guardarDadosEmBinario() {
 
 }
 
-/*void gravarEstacionamentosTexto() {
+void gravarEstacionamentosTexto() {
 
 }
 
