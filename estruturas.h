@@ -9,41 +9,29 @@
 
 */
 
-
+#ifndef ESTRUTURAS_H
+#define ESTRUTURAS_H
 
 #define	_CRT_SECURE_NO_WARNINGS
 
-// Para definir aonde os .txt estão
+// Caminhos padrão. Não vão mudar durante a execução do programa.
 #define TARIFAS_PATH			"tarifas.txt"
 #define ESTACIONAMENTOS_PATH	"estacionamentos.txt"
 #define BIN_PATH				"dados.bin"
 
-#ifndef estruturas_h
-#define estruturas_h
-
 #include <stdio.h>
-#include <stdlib.h>
-#include <locale.h>
-#include <string.h>
-#include <ctype.h>
-
-
-
 
 //==========================================
 //		DEFINIÇÕES
 //==========================================
-
 #define MAX_PISO 5
 #define MAX_FILA 26 // De A a Z
 #define MAX_LUGARES 50
 #define MAX_TARIFAS 10 // Limite máximo de planos de tarifas com margem [Samuel]
-#define MAX_ESTACIONAMENTOS 50000
 
 //==========================================
 //		ENUMERAÇÕES (Objetivo de padronizar estados e codigos)
 //==========================================
-
 typedef enum estado_lugar { // Flag para informar se o lugar está ocupado, livre ou indisponível
 	LUGAR_LIVRE = 0,
 	LUGAR_OCUPADO = 1,
@@ -64,12 +52,10 @@ typedef enum leitura {
 //==========================================
 //		STRUCTS
 //==========================================
-
 typedef struct parque {		// Config da matriz do estacionamento
 	int pisos;			// Numero de pisos (max 5)
 	int filasPorPiso;	// Numero de filas por piso (max 26)
 	int lugaresPorFila;	// Numero de lugares por fila (max 50)
-
 	EstadoLugar mapa[MAX_PISO][MAX_FILA][MAX_LUGARES]; // Matriz que representa o estacionamento -- O enum serve mais para facilitar a leitura do estado do lugar antes do carro entrar ou sair
 } PARQUE;
 
@@ -85,30 +71,27 @@ typedef struct parametro_estacionamento {		//Informações dos veículos estacio
 	char fila; // de A = 0 a z = MAX_FILA-1
 	int lugar; // de 0 a MAX_LUGARES-1
 
-	EstadoLugar estado;		//LUGAR_LIVRE ou LUGAR_OCUPADO
-} VAGAS;
+	EstadoLugar estado;		//Estado atual da vaga
 
-typedef struct tarifario{
+	int temSaida; // 0 = ainda no parque, 1 = saída registada
+	double valorPago; // total calculado na saída
+	char lugarCod[8]; // Ex: 1A05 (piso 1, fila A, lugar 05)
+} VAGA;
+
+typedef struct tarifario {
 	float valor;		//valor da tarifa
 	char etiqueta[10];	//etiqueta da tarifa (ex: normal, especial, etc)
 } TARIFARIO;
 
 typedef struct sistema {
 	PARQUE parque;
-
 	TARIFARIO tarifas[MAX_TARIFAS];
 	int totalTarifas;
-	VAGAS estacionamentos[MAX_ESTACIONAMENTOS];
+
 	int totalEstacionamentos;
+	VAGAS* estacionamentos; // <- mudar para ponteiro dinâmico
 
 	int ultimoNumEntrada;
 } SISTEMA; //tenho de rever esta struct -- Já ta revisada [Samuel]
-
-
-/*Removi os protótipos daqui e deixei todos no funcoes.h*/
-
-
-
-
 
 #endif /* estruturas_h */

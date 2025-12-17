@@ -1,84 +1,94 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <locale.h>
+#include "menu.h"
+#include "funcoes.h"  // Incluir para ter acesso às funções do sistema
 
-#define PISOS 5
-#define VAGAS_POR_PISO 50
-#define MAX_VEICULOS (PISOS * VAGAS_POR_PISO)
-
-// ===== STRUCT PARA VEÍCULOS =====
-typedef struct {
-    char matricula[10];
-    int piso;
-    int vaga;
-    int horaEntrada;
-    int minutoEntrada;
-    int ativo; // 1 = no parque, 0 = saiu
-} Veiculo;
-
-// ===== ARRAYS DO SISTEMA =====
-int vagas[PISOS][VAGAS_POR_PISO]; // 0 = livre, 1 = ocupada
-Veiculo veiculos[MAX_VEICULOS];
-int totalVeiculos = 0;
-
-// ===== FUNÇÕES =====
-void mostrarLugaresDisponiveis(void) {
-    printf("Lugares disponiveis:\n");
-
-    for (int i = 0; i < PISOS; i++) {
-        int livres = 0;
-        for (int j = 0; j < VAGAS_POR_PISO; j++) {
-            if (vagas[i][j] == 0)
-                livres++;
-        }
-        printf("Piso %d: %d\n", i + 1, livres);
-    }
-    printf("\n");
+static void limparEcra(void) {
+#ifdef _WIN32
+    system("cls");
+#else
+    system("clear");
+#endif
 }
 
-void mostrarMenuPrincipal(void) {
-    int opcao;
+static void pausa(void) {
+    printf("\nPressione ENTER para continuar...");
+    getchar();
+}
+
+void mostrarMenuPrincipal(SISTEMA* s) {
+    int opcao = 0;
+
+    if (!s) {
+        fprintf(stderr, "Erro: sistema nulo no menu.\n");
+        return;
+    }
 
     do {
-        system("clear"); // no Windows usar "cls"
+        limparEcra();
 
-        mostrarLugaresDisponiveis();
+        printf("=================================\n");
+        printf("        SISTEMA DE PARQUE         \n");
+        printf("=================================\n");
+        printf("Pisos: %d | Filas: %d | Lugares: %d\n",
+            s->parque.pisos,
+            s->parque.filasPorPiso,
+            s->parque.lugaresPorFila);
+        printf("---------------------------------\n");
 
-        printf("=== MENU PRINCIPAL ===\n");
         printf("1 - Entrada de veiculo\n");
-        printf("2 - Consultar ocupação\n");
-        printf("3 - Saida de veiculo + cobrança\n");
-        printf("4 - Gestao de lugares indisponiveis\n");
-        printf("5 - Mapa de ocupação por piso\n");
-        printf("6 - Listagens com paginação\n");
-        printf("7 - Extras (Graficos / CSV / tabelas)\n");
-        printf("8 - Gravar dados\n");
+        printf("2 - Saida de veiculo\n");
+        printf("3 - Consultar estacionamento\n");
+        printf("4 - Mostrar mapa de um piso\n");
+        printf("5 - Listar estacionamentos\n");
+        printf("6 - Gravar dados\n");
         printf("9 - Sair\n");
-        printf("======================\n");
-        printf("Opção: ");
+        printf("---------------------------------\n");
+        printf("Opcao: ");
 
-        scanf("%d", &opcao);
-        while (getchar() != '\n');
+        if (scanf("%d", &opcao) != 1) {
+            while (getchar() != '\n'); // limpa buffer
+            opcao = 0;
+        }
+        while (getchar() != '\n'); // remove ENTER
 
         switch (opcao) {
-            case 1: /* entradaVeiculo(); */ break;
-            case 2: /* consultarOcupacao(); */ break;
-            case 3: /* saidaVeiculo(); */ break;
-            case 4: /* gerirLugares(); */ break;
-            case 5: /* mostrarMapaPiso(); */ break;
-            case 6: /* listarComPaginacao(); */ break;
-            case 7: /* extras(); */ break;
-            case 8: /* gravarDados(); */ break;
-            case 9:
-                printf("A sair...\n");
-                break;
-            default:
-                printf("Opção invalida!\n");
+        case 1:
+            // Chama a função de entrada de veículo
+            registarEntradaVeiculo(s);
+            break;
+
+        case 2:
+            printf("Saida de veiculo (a implementar)\n");
+            break;
+
+        case 3:
+            printf("Consulta de estacionamento (a implementar)\n");
+            break;
+
+        case 4:
+            printf("Mapa do piso (a implementar)\n");
+            break;
+
+        case 5:
+            printf("Listagem de estacionamentos (a implementar)\n");
+            break;
+
+        case 6:
+            printf("A gravar dados...\n");
+            guardarBinario(s);
+            break;
+
+        case 9:
+            printf("A sair do programa...\n");
+            break;
+
+        default:
+            printf("Opcao invalida!\n");
         }
 
-        printf("Pressione ENTER para continuar...");
-        getchar();
+        if (opcao != 9)
+            pausa();
 
     } while (opcao != 9);
 }
-
