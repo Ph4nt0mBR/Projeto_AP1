@@ -220,12 +220,13 @@ void carregarEstacionamentosDeFicheiro(SISTEMA* s) { // Bruno
 
     FILE* f = abrirArquivo(ESTACIONAMENTOS_PATH, "r");
     if (!f) {
-        printf("Houve um erro ao abrir o ficheiro %s.\n", ESTACIONAMENTOS_PATH);
+        fprintf(stderr, "Houve um erro ao abrir o ficheiro %s.\n", ESTACIONAMENTOS_PATH);
         return;
     }
 
     s->totalEstacionamentos = 0;
     VAGAS e = { 0 }; // FIX: Initialize all fields of 'e' to zero/default
+    memset(&e, 0, sizeof(VAGAS)); //zera todos os bytes da struct, garantindo que todos os campos iniciem com valores padrão (0 ou string vazia).
 
     while (fscanf(f, "%d %10s %10s %d %c %d %5s %d",
         &e.id,
@@ -357,16 +358,12 @@ int registarEntradaVeiculo(SISTEMA* s) { //Bruno
     if (!s) return -1;
 
     VAGAS novo;
+	memset(&novo, 0, sizeof(VAGAS)); //zera todos os campos da struct
 
-    // Usar 'id' em vez de 'numEntrada' (que não existe na struct)
     novo.id = ++s->ultimoNumEntrada;
 
     printf("Matricula do veiculo: ");
     scanf("%s", novo.matricula);
-
-    // Removido: tipoVeiculo não existe na struct VAGAS
-    // printf("Tipo de veiculo (ex: 'Carro', 'Moto', 'Camiao'): ");
-    // scanf("%s", novo.tipoVeiculo);
 
     int piso; //escolher piso
     printf("Piso pretendido (0 a %d): ", s->parque.pisos - 1);
@@ -377,54 +374,34 @@ int registarEntradaVeiculo(SISTEMA* s) { //Bruno
         return -1;
     }
 
-    // Procurar lugar livre no piso escolhido
-    int fila, lugar;
-    int encontrou = 0;
-
-    for (fila = 0; fila < s->parque.filasPorPiso && !encontrou; fila++) {
-        for (lugar = 0; lugar < s->parque.lugaresPorFila && !encontrou; lugar++) {
-            if (s->parque.mapa[piso][fila][lugar] == LUGAR_LIVRE) {
-                encontrou = 1;
-            }
-        }
-    }
-
-    if (!encontrou) {
-        printf("Não existem lugares disponíveis neste piso.\n");
+    int filaIdx = -1, lugarIdx = -1;
+    if (atribuirLugar(s, piso, &filaIdx, &lugarIdx) != 0) {
+        fprintf(stderr, "Nao existem lugares disponiveis neste piso.\n");
         return -1;
     }
 
-    //guardar lugar atribuido
-    novo.andar = piso;  // Usar 'andar' em vez de 'piso'
+	novo.andar = piso; //guarda o piso
+	novo.fila = (char)('A' + filaIdx); // índice 0..filasPorPiso-1 para letra
+	novo.lugar = lugarIdx;             //guarda o lugar
 
-    // ATENÇÃO: a struct usa char para fila
-    // Converter índice numérico para caractere (A, B, C, ...)
-    novo.fila = 'A' + (fila - 1);  // Converte para letra
-
-    novo.lugar = lugar - 1;
-
-    //registar data e hora de entrada
     printf("Data de entrada (dd/mm/aaaa): ");
-    scanf("%s", novo.dataEntrada);
+    scanf("%10s", novo.dataEntrada);
 
     printf("Hora de entrada (HH:MM): ");
-    scanf("%s", novo.horaEntrada);
+    scanf("%5s", novo.horaEntrada);
 
-    // Inicializar data e hora de saída como vazias
-    novo.dataSaida[0] = '\0';
-    novo.horaSaida[0] = '\0';
-
-    //estado inicial do estacionamento
+	novo.dataSaida[0] = '\0'; 
+    novo.horaSaida[0] = '\0'; //inicializa data de saida e hora de saida como vazias
     novo.estado = LUGAR_OCUPADO;
 
-    //atualizar mapa - usar indices numéricos para a matriz
-    s->parque.mapa[piso][fila - 1][lugar - 1] = LUGAR_OCUPADO;
+    // Atualiza o mapa com índices corretos
+    s->parque.mapa[piso][filaIdx][lugarIdx] = LUGAR_OCUPADO;
 
-    //adicionar a lista de estacionamentos
+    //adiciona o registo
     s->estacionamentos[s->totalEstacionamentos++] = novo;
 
     printf("Entrada registada com sucesso! Ticket Nº %d\n", novo.id);
-    printf("Lugar: Piso %d, Fila %c, Lugar %d\n", novo.andar, novo.fila, novo.lugar);
+    printf("Lugar: Piso %d, Fila %c, Lugar %d\n", novo.andar, novo.fila, novo.lugar); //mostra localizacao
 
     return novo.id;
 }
@@ -490,7 +467,7 @@ void mostrarTicketEntrada(int numEntrada) {
 //----------------------------------------------------
 // Saída de veículos
 //----------------------------------------------------
-/*
+
 int registarSaidaVeiculo() {
 
     return 0;
@@ -522,19 +499,18 @@ void alterarSaida(int numEntrada) {                                          //O
 
 
 
-/*
 void anularSaida(int numEntrada) {
     if (numEntrada < 0) return;                                      //O veiculo ja deve ter saida registada (ativo == 0)
     //Se for inválido, a função não faz
     parqueRegisto[numEntrada].ativo = 1;
     printf("Saida anulada!\n");
 
-} */
+}
 
 //----------------------------------------------------
 // Consulta, alteração e eliminação de registos
 //----------------------------------------------------
-/*
+
 void consultarEstacionamento(int numEntrada) {
 
 }
@@ -633,4 +609,3 @@ void gerarTabelaDinamica() {
 void gerarCSV() {
 
 }
-*/
