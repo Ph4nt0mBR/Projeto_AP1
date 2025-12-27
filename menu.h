@@ -26,6 +26,7 @@ void mostrarMenuPrincipal(SISTEMA* s);
 
 void entradaVeiculo(SISTEMA* s);
 void consultarOcupacao(SISTEMA* s);
+void consultarEstacionamento(SISTEMA* s, int numEntrada);
 void saidaVeiculo(SISTEMA* s);
 void gerirLugares(SISTEMA* s);
 void mostrarMapaPiso(SISTEMA* s);

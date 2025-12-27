@@ -62,9 +62,14 @@ void mostrarMenuPrincipal(SISTEMA* s) {
             printf("Saida de veiculo (a implementar)\n");
             break;
 
-        case 3:
-            printf("Consulta de estacionamento (a implementar)\n");
+        case 3: {
+            int id = 0;                                       //n ticket
+            printf("Numero de entrada (ticket): ");
+            if (scanf("%d", &id) != 1) { while (getchar() != '\n'); id = 0; } // validacao
+            while (getchar() != '\n');                         // limpa o enter (buffer)
+            consultarEstacionamento(s, id);
             break;
+        }
 
         case 4:
             printf("Mapa do piso (a implementar)\n");

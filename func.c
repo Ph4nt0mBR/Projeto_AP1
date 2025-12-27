@@ -512,7 +512,60 @@ void anularSaida(int numEntrada) {
 //----------------------------------------------------
 
 void consultarEstacionamento(int numEntrada) {
+    if (!s || !s->estacionamentos) { //valida ponteiro sistema e estacionamentos
+        fprintf(stderr, "Erro: sistema ou estacionamentos nulo(s). \n");
+        return;
+    }
 
+	if (numEntrada <= 0 || numEntrada > s->totalEstacionamentos) { //valida numero de entrada
+        fprintf(stderr, "Erro: Numero de entrada invalido.\n");
+        return;
+    }
+
+	//procura o estacionamento com o ID correspondente
+    const VAGAS* v = NULL;
+    for (int i = 0; i < s->totalEstacionamentos; i++) {
+        if(s->estacionamentos[i].id == numEntrada) {
+            v = &s->estacionamentos[i];
+            break;
+		}
+    }
+
+    if (!v) { //se n encontrar, emnsagem de nao encontrado
+        fprintf(stderr, "Erro: Estacionamento com ID %d nao encontrado.\n", numEntrada);
+        return;
+	}
+
+    const char* estadoStr = 
+		(v->estado == LUGAR_OCUPADO) ? "Ocupado";
+    (v->estado == LUGAR_LIVRE) ? "Livre";
+	(v->estado == LUGAR_INDISPONIVEL) ? "Indisponivel" : "Desconhecido";
+
+
+	//mostra detalhes do estacionamento
+	pritnf("------Consulta de Estacionamento------\n");
+	printf("Ticket Nº: %d\n", v->id);               //numero ticket
+	printf("Matricula: %s\n", v->matricula);         //matricula
+    printf("Entrada: %s %s\n", v->dataEntrada, v->horaEntrada); //data e hora entrada
+	printf("Saida: %s %s\n", v->dataSaida[0] ? v->dataSaida : "-", v->horaSaida[0] ? v->horaSaida : "-"); //data e hora saida
+    printf("Local: Piso %d, Fila %c, Lugar %d\n", v->andar, v->fila, v->lugar);             //coordenadas
+	printf("Estado: %s\n", estadoStr); 					 //estado do lugar
+
+
+    //valida coordenadas e mostra estado no mapa
+    if (!coordenadaValida(&s->parque, v->andar, v->fila, v->lugar)) {
+        fprintf(stderr, "Aviso, coordenadas fora dos limites do parque\n"); //se n for valido, avisa
+    }
+    else {
+        int filaIdx = colunaChar_Indice(v->fila); //converte fila char pra indice
+		EstadoLugar mapaEstado = s->parque->mapa[v->andar][filaIdx][v->lugar]; //saca o estado do mapa
+        const char* mapaStr =
+            (mapaEstado == LUGAR_OCUPADO) ? "Ocupado" :
+            (mapaEstado == LUGAR_LIVRE) ? "Livre" :
+            (mapaEstado == LUGAR_INDISPONIVEL) ? "Indisponivel" : "Desconhecido";
+        printf("Mapa confirma: %s\n", mapaStr); //confirma estado no mapa
+    }
+    printf("==============================================\n");
 }
 
 void alterarEstacionamento(int numEntrada) {
