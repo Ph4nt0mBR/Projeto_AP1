@@ -84,6 +84,15 @@ void mostrarMenuPrincipal(SISTEMA* s) {
             guardarBinario(s);
             break;
 
+        case 7: { 
+            int id = 0;
+            printf("Numero de entrada (ticket) a alterar: ");
+            if (scanf("%d", &id) != 1) { while (getchar() != '\n'); id = 0; }
+            while (getchar() != '\n');
+            alterarEstacionamento(s, id);
+            break;
+        }
+
         case 9:
             printf("A sair do programa...\n");
             break;

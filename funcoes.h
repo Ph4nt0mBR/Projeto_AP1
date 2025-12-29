@@ -28,6 +28,11 @@ int colunaChar_Indice(char letraParaNum);
 char colunaIndice_Char(const PARQUE* p, int intParaChar);
 int coordenadaValida(const PARQUE* p, int andar, char filaChar, int lugar);
 
+// Consultas e alterações
+void consultarEstacionamento(SISTEMA* s, int numEntrada);
+void alterarEstacionamento(SISTEMA* s, int numEntrada);
+
+
 // Funções vazias (a implementar)
 void registarSaidaVeiculo(SISTEMA* s);
 void gerirLugaresIndisponiveis(SISTEMA* s);
