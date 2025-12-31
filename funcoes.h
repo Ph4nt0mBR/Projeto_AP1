@@ -1,44 +1,43 @@
-#ifndef funcoes_h
-#define funcoes_h
+#ifndef FUNCOES_H
+#define FUNCOES_H
 
 #include "estruturas.h"
 
-// Inicializacao e Persistencia
-void inicializarSistema(SISTEMA* s);
-int guardarBinario(SISTEMA* s);
-int carregarBinario(SISTEMA* s);
-ResultadoLeitura leituraConstante(SISTEMA* s);
-ResultadoLeitura primeiraLeitura(SISTEMA* s);
+/* --- Parque / Sistema --- */
+void initSistema(Sistema *s);
+void freeSistema(Sistema *s);
 
-// Configuração do parque
-void configurarParque(PARQUE* p);
+int configurarParque(Sistema *s);
+void mostrarDisponiveisPorPiso(const Sistema *s);
 
-// Carregamento de arquivos .txt
-void carregarTarifasDeFicheiro(SISTEMA* s);
-void carregarEstacionamentosDeFicheiro(SISTEMA* s);
+/* --- Lugares --- */
+int idxLugar(const Sistema *s, int piso, int fila, int lugar);
+int contarLivresNoPiso(const Sistema *s, int piso);
+void imprimirMapaPiso(const Sistema *s, int piso);
 
-// Entrada e saída de veículos
-int atribuirLugar(SISTEMA* s, int piso, int* filaOut, int* lugarOut);
-int registarEntradaVeiculo(SISTEMA* s);
+/* --- Tarifas --- */
+int carregarTarifasTxt(Sistema *s, const char *fname);
+double obterValorTarifa(const Sistema *s, const char *cod);
 
-// Funções auxiliares
-void trimTexto(char* s);
-FILE* abrirArquivo(const char* caminho, const char* modo);
-int colunaChar_Indice(char letraParaNum);
-char colunaIndice_Char(const PARQUE* p, int intParaChar);
-int coordenadaValida(const PARQUE* p, int andar, char filaChar, int lugar);
+/* --- Estacionamentos --- */
+int carregarEstacionamentosTxt(Sistema *s, const char *fname);
+void listarEstacionamentosPaginado(const Sistema *s);
+void exportarListagemTxt(const Sistema *s, const char *fname);
 
-// Consultas e alterações
-void consultarEstacionamento(SISTEMA* s, int numEntrada);
-void alterarEstacionamento(SISTEMA* s, int numEntrada);
+/* --- Operações --- */
+void registarEntrada(Sistema *s);
+void registarSaida(Sistema *s);
+void consultarAlterarEliminar(Sistema *s);
 
+/* --- Indisponibilidades --- */
+void marcarIndisponivel(Sistema *s);
+void reverterIndisponivel(Sistema *s);
 
-// Funções vazias (a implementar)
-void registarSaidaVeiculo(SISTEMA* s);
-void gerirLugaresIndisponiveis(SISTEMA* s);
-void mostrarMapaPiso(SISTEMA* s);
-void listarEstacionamentos(SISTEMA* s);
-void funcionalidadeExtra1(SISTEMA* s);
-void gerarGrafico(SISTEMA* s);
+/* --- Persistência binária --- */
+int guardarBinario(const Sistema *s, const char *fname);
+int carregarBinario(Sistema *s, const char *fname);
+
+/* --- Utilitários --- */
+void limparBuffer(void);
 
 #endif

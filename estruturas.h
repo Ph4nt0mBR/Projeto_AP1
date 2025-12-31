@@ -1,118 +1,66 @@
-/*
-	header.h
-	Criado por: Samuel
-	Data 25/11
-
-	Nota: Tentar manter esse projeto o mais organizado possivel.
-	Manter qualquer arquivo extra em .c ou .h, e lembrar de incluir SOMENTE onde vai usar.
-	Se não está sendo usado em nenhum lugar, remover o arquivo.
-
-*/
-
-
-
-#define	_CRT_SECURE_NO_WARNINGS
-
-// Para definir aonde os .txt estão
-#define TARIFAS_PATH			"tarifas.txt"
-#define ESTACIONAMENTOS_PATH	"estacionamentos.txt"
-#define BIN_PATH				"dados.bin"
-
-#ifndef estruturas_h
-#define estruturas_h
+#ifndef ESTRUTURAS_H
+#define ESTRUTURAS_H
 
 #include <stdio.h>
-#include <stdlib.h>
-#include <locale.h>
-#include <string.h>
-#include <ctype.h>
 
-
-
-
-//==========================================
-//		DEFINIÇÕES
-//==========================================
-
-#define MAX_PISO 5
-#define MAX_FILA 26 // De A a Z
+#define MAX_PISOS 5
+#define MAX_FILAS 26
 #define MAX_LUGARES 50
-#define MAX_TARIFAS 10 // Limite máximo de planos de tarifas com margem [Samuel]
-#define MAX_ESTACIONAMENTOS 50000
 
-//==========================================
-//		ENUMERAÇÕES (Objetivo de padronizar estados e codigos)
-//==========================================
+#define MAX_TARIFAS 10
+#define MAX_COD_TARIFA 8
 
-typedef enum estado_lugar { // Flag para informar se o lugar está ocupado, livre ou indisponível
-	LUGAR_LIVRE = 0,
-	LUGAR_OCUPADO = 1,
-	LUGAR_INDISPONIVEL = 2
+typedef enum {
+    LUGAR_LIVRE = 0,
+    LUGAR_OCUPADO = 1,
+    LUGAR_INDISPONIVEL = 2
 } EstadoLugar;
 
-typedef enum leitura {
-	LER_OK = 0,
-	LER_FALHA_ABRIR,
-	LER_FICHEIRO_VAZIO,
-	LER_ERRO_FORMATO,
-	LER_ERRO_IO,
-	LER_DIMENSOES_INVALIDAS,
-	LER_CAPACIDADE_EXCEDIDA
-} ResultadoLeitura;
+typedef struct {
+    EstadoLugar estado;   // livre, ocupado, indisponível
+    char motivo;          // i/o/r/m se indisponível, '-' caso contrário
+    int numEntrada;       // se ocupado, nº do registo de estacionamento; senão -1
+} Lugar;
 
+typedef struct {
+    int pisos;            // 1..5
+    int filas;            // 1..26  (A..)
+    int lugaresPorFila;   // 1..50  (01..)
+    Lugar *lugares;       // array linear: [pisos*filas*lugaresPorFila]
+} Parque;
 
-//==========================================
-//		STRUCTS
-//==========================================
+typedef struct {
+    char tp;                       // 'H' ou 'D'
+    char cod[MAX_COD_TARIFA];      // "CT1", "CT2", "CT3", "CT4"
+    int hInf, mInf;                // para H (CT1/CT2)
+    int hSup, mSup;                // para H (CT1/CT2)
+    double valor;                  // €/hora (H) ou €/dia (D)
+} Tarifa;
 
-typedef struct parque {		// Config da matriz do estacionamento
-	int pisos;			// Numero de pisos (max 5)
-	int filasPorPiso;	// Numero de filas por piso (max 26)
-	int lugaresPorFila;	// Numero de lugares por fila (max 50)
+typedef struct {
+    int numE;
+    char matricula[16];
 
-	EstadoLugar mapa[MAX_PISO][MAX_FILA][MAX_LUGARES]; // Matriz que representa o estacionamento -- O enum serve mais para facilitar a leitura do estado do lugar antes do carro entrar ou sair
-} PARQUE;
+    int anoE, mesE, diaE, horaE, minE;
+    char lugarCod[8]; // ex: "3C05" (ou "1A21")
 
-typedef struct parametro_estacionamento {		//Informações dos veículos estacionados
-	int id;
-	char matricula[11];		/* Padrão europeu */
-	char dataEntrada[11];	/* dd/mm/aaaa */
-	char horaEntrada[6];	/* hh:mm */
-	char dataSaida[11];		/* dd/mm/aaaa */
-	char horaSaida[6];		/* hh:mm */
-	char tipoVeiculo[20];
+    int temSaida;     // 0/1
+    int anoS, mesS, diaS, horaS, minS;
+    double valorPago;
+    char obs[64];
+} Estacionamento;
 
-	int andar; // de 0 a MAX_PISO-1
-	char fila; // de A = 0 a z = MAX_FILA-1
-	int lugar; // de 0 a MAX_LUGARES-1
+typedef struct {
+    Parque parque;
 
-	EstadoLugar estado;		//LUGAR_LIVRE ou LUGAR_OCUPADO
-} VAGAS;
+    Tarifa tarifas[MAX_TARIFAS];
+    int nTarifas;
 
-typedef struct tarifario {
-	float valor;		//valor da tarifa
-	char etiqueta[10];	//etiqueta da tarifa (ex: normal, especial, etc)
-} TARIFARIO;
+    Estacionamento *ests;
+    int nEsts;
+    int capEsts;
 
-typedef struct sistema {
-	PARQUE parque;
-	TARIFARIO tarifas[MAX_TARIFAS];
-	int totalTarifas;
+    int ultimoNumEntrada; // para gerar numE sequencial
+} Sistema;
 
-	int totalEstacionamentos;
-	VAGAS* estacionamentos; // <- mudar para ponteiro dinâmico
-
-	int ultimoNumEntrada;
-} SISTEMA; //tenho de rever esta struct -- Já ta revisada [Samuel]
-
-
-
-
-
-/*Removi os protótipos daqui e deixei todos no funcoes.h*/
-
-
-
-
-
-#endif /* estruturas_h */
+#endif

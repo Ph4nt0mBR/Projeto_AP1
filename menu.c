@@ -1,108 +1,48 @@
-#include <stdio.h>
-#include <stdlib.h>
 #include "menu.h"
-#include "funcoes.h"  // Incluir para ter acesso às funções do sistema
+#include "funcoes.h"
+#include <stdio.h>
 
-static void limparEcra(void) {
-#ifdef _WIN32
-    system("cls");
-#else
-    system("clear");
-#endif
-}
-
-static void pausa(void) {
-    printf("\nPressione ENTER para continuar...");
-    getchar();
-}
-
-void mostrarMenuPrincipal(SISTEMA* s) {
-    int opcao = 0;
-
-    if (!s) {
-        fprintf(stderr, "Erro: sistema nulo no menu.\n");
-        return;
-    }
-
-    do {
-        limparEcra();
-
-        printf("=================================\n");
-        printf("        SISTEMA DE PARQUE         \n");
-        printf("=================================\n");
-        printf("Pisos: %d | Filas: %d | Lugares: %d\n",
-            s->parque.pisos,
-            s->parque.filasPorPiso,
-            s->parque.lugaresPorFila);
-        printf("---------------------------------\n");
-
-        printf("1 - Entrada de veiculo\n");
-        printf("2 - Saida de veiculo\n");
-        printf("3 - Consultar estacionamento\n");
-        printf("4 - Mostrar mapa de um piso\n");
-        printf("5 - Listar estacionamentos\n");
-        printf("6 - Gravar dados\n");
-        printf("9 - Sair\n");
-        printf("---------------------------------\n");
+void menuPrincipal(Sistema *s) {
+    int op;
+    while (1) {
+        mostrarDisponiveisPorPiso(s);
+        printf("\n===== MENU =====\n");
+        printf("1) Registar Entrada\n");
+        printf("2) Registar Saida\n");
+        printf("3) Consultar/Alterar/Eliminar Registo\n");
+        printf("4) Mostrar Mapa de Piso\n");
+        printf("5) Marcar Lugar Indisponivel\n");
+        printf("6) Reverter Indisponivel\n");
+        printf("7) Listar Estacionamentos (paginado)\n");
+        printf("8) Guardar (dados.bin)\n");
+        printf("0) Sair\n");
         printf("Opcao: ");
 
-        if (scanf("%d", &opcao) != 1) {
-            while (getchar() != '\n'); // limpa buffer
-            opcao = 0;
+        if (scanf("%d", &op) != 1) { limparBuffer(); continue; }
+        limparBuffer();
+
+        if (op == 1) registarEntrada(s);
+        else if (op == 2) registarSaida(s);
+        else if (op == 3) consultarAlterarEliminar(s);
+        else if (op == 4) {
+            int piso = 1;
+            printf("Piso: ");
+            scanf("%d", &piso);
+            limparBuffer();
+            imprimirMapaPiso(s, piso);
         }
-        while (getchar() != '\n'); // remove ENTER
-
-        switch (opcao) {
-        case 1:
-            // Chama a função de entrada de veículo
-            registarEntradaVeiculo(s);
-            break;
-
-        case 2:
-            printf("Saida de veiculo (a implementar)\n");
-            break;
-
-        case 3: {
-            int id = 0;                                       //n ticket
-            printf("Numero de entrada (ticket): ");
-            if (scanf("%d", &id) != 1) { while (getchar() != '\n'); id = 0; } // validacao
-            while (getchar() != '\n');                         // limpa o enter (buffer)
-            consultarEstacionamento(s, id);
-            break;
+        else if (op == 5) marcarIndisponivel(s);
+        else if (op == 6) reverterIndisponivel(s);
+        else if (op == 7) listarEstacionamentosPaginado(s);
+        else if (op == 8) {
+            if (guardarBinario(s, "dados.bin")) printf("Guardado com sucesso.\n");
+            else printf("Erro ao guardar.\n");
         }
-
-        case 4:
-            printf("Mapa do piso (a implementar)\n");
-            break;
-
-        case 5:
-            printf("Listagem de estacionamentos (a implementar)\n");
-            break;
-
-        case 6:
-            printf("A gravar dados...\n");
-            guardarBinario(s);
-            break;
-
-        case 7: { 
-            int id = 0;
-            printf("Numero de entrada (ticket) a alterar: ");
-            if (scanf("%d", &id) != 1) { while (getchar() != '\n'); id = 0; }
-            while (getchar() != '\n');
-            alterarEstacionamento(s, id);
+        else if (op == 0) {
+            // Guarda obrigatoriamente ao sair (enunciado)
+            guardarBinario(s, "dados.bin");
+            printf("Adeus!\n");
             break;
         }
-
-        case 9:
-            printf("A sair do programa...\n");
-            break;
-
-        default:
-            printf("Opcao invalida!\n");
-        }
-
-        if (opcao != 9)
-            pausa();
-
-    } while (opcao != 9);
+    }
 }
