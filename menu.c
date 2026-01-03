@@ -1,7 +1,9 @@
+#include "menu.h"
+#include "funcoes.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include "menu.h"
-#include "funcoes.h"  // Incluir para ter acesso Ã s funÃ§Ãµes do sistema
+#include "funcoes.h"  // Incluir para ter acesso às funções do sistema
 
 static void limparEcra(void) {
 #ifdef _WIN32
@@ -54,7 +56,7 @@ void mostrarMenuPrincipal(SISTEMA* s) {
 
         switch (opcao) {
         case 1:
-            // Chama a funÃ§Ã£o de entrada de veÃ­culo
+            // Chama a função de entrada de veículo
             registarEntradaVeiculo(s);
             break;
 

@@ -35,5 +35,7 @@ void mostrarMapaPiso(SISTEMA* s);
 void listarEstacionamentos(SISTEMA* s);
 void funcionalidadeExtra1(SISTEMA* s);
 void gerarGrafico(SISTEMA* s);
+/* --- Utilitários --- */
+void limparBuffer(void);
 
 #endif /* funcoes_h */

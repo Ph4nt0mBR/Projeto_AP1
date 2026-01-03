@@ -13,7 +13,11 @@
 
 #include "menu.h"
 #include "funcoes.h"
+#include "menu.h"
 
+int main(void) {
+    Sistema s;
+    initSistema(&s);
 
 /* Função principal — inicializa, executa o menu e garante persistência ao sair.  */
 int main() {

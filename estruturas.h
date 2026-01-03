@@ -1,7 +1,5 @@
-/*
-	header.h
-	Criado por: Samuel
-	Data 25/11
+#ifndef ESTRUTURAS_H
+#define ESTRUTURAS_H
 
 	Nota: Tentar manter esse projeto o mais organizado possivel.
 	Manter qualquer arquivo extra em .c ou .h, e lembrar de incluir SOMENTE onde vai usar.
@@ -38,16 +36,18 @@ typedef enum estado_lugar { // Flag para informar se o lugar está ocupado, livr
 	LUGAR_INDISPONIVEL = 2
 } EstadoLugar;
 
-typedef enum leitura {
-	LER_OK = 0,
-	LER_FALHA_ABRIR,
-	LER_FICHEIRO_VAZIO,
-	LER_ERRO_FORMATO,
-	LER_ERRO_IO,
-	LER_DIMENSOES_INVALIDAS,
-	LER_CAPACIDADE_EXCEDIDA
-} ResultadoLeitura;
+typedef struct {
+    EstadoLugar estado;   // livre, ocupado, indisponível
+    char motivo;          // i/o/r/m se indisponível, '-' caso contrário
+    int numEntrada;       // se ocupado, nº do registo de estacionamento; senão -1
+} Lugar;
 
+typedef struct {
+    int pisos;            // 1..5
+    int filas;            // 1..26  (A..)
+    int lugaresPorFila;   // 1..50  (01..)
+    Lugar *lugares;       // array linear: [pisos*filas*lugaresPorFila]
+} Parque;
 
 //==========================================
 //		STRUCTS
@@ -91,7 +91,8 @@ typedef struct sistema {
 	int totalEstacionamentos;
 	VAGAS* estacionamentos; // <- mudar para ponteiro dinâmico
 
-	int ultimoNumEntrada;
-} SISTEMA; //tenho de rever esta struct -- Já ta revisada [Samuel]
+typedef struct {
+    int numE;
+    char matricula[16];
 
 #endif /* estruturas_h */

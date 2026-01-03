@@ -1,11 +1,7 @@
-/*
-	menu.h
-	Criado por: Samuel
-	Data 27/11
+#ifndef MENU_H
+#define MENU_H
 
-	Nota: Usar isso daqui pra manter o menu mais organizado.
-	Puxar aquele monte de declarações de funções do menu.c pra cá. [Samuel]
-*/
+#include "estruturas.h"
 
 
 #ifndef MENU_H
@@ -14,7 +10,7 @@
 #include "estruturas.h"
 
 //=======================================
-// PROTÓTIPOS
+// PROT�TIPOS
 //=======================================
 
 void mostrarMenuPrincipal(SISTEMA* s);
