@@ -13,51 +13,31 @@
 
 #include "menu.h"
 #include "funcoes.h"
-#include "menu.h"
 
-int main(void) {
-    Sistema s;
-    initSistema(&s);
-
-/* Função principal — inicializa, executa o menu e garante persistência ao sair.  */
 int main() {
-    setlocale(LC_ALL, "Portuguese");
-    // system("clear");  // Para MacOS
-    system("cls");  // Para Windows
+	setlocale(LC_ALL, "Portuguese");
+	//system("cls"); // Limpa o ecrã (Windows). Use "clear" para Unix/Linux.
 
-    SISTEMA sistema;
+	SISTEMA sistema;
+	inicializarSistema(&sistema);
 
+	if (!leituraConstante(&sistema)) {
+		fprintf(stderr, "Aviso: ficheiro binario não encontrado ou inválido. Tentando instalação inicial...\n");
+		if (!primeiraLeitura(&sistema)) {
+			fprintf(stderr, "Erro: falha na instalação inicial. Encerrando programa.\n");
+			return 1;
+		}
+	}
+	/*Implementar o resto do codigo aqui*/
 
-    ResultadoLeitura r = leituraConstante(&sistema);    //Inicia o sistema, verificando se tem o .bin, se n tiver tenta ler os .txt
-    if (r != LER_OK) {
-        fprintf(stderr, "Erro ao carregar dados: %d. Realizando instalação inicial...\n", r);
-        r = primeiraLeitura(&sistema);
-        if (r != LER_OK) {
-            fprintf(stderr, "Erro crítico na instalação inicial: %d\n", r);
-            return 1;
-        }
-    }
+	if (!guardarBinario(&sistema)) {
+		fprintf(stderr, "Erro: Não foi possivel guardar dados em %s!\n", BIN_PATH);
+		return 1;
+	}
 
-    //Menu principal
-    mostrarMenuPrincipal(&sistema);
-
-    // Ao sair do menu, grava os dados no binário
-    if (!guardarBinario(&sistema)) {
-        fprintf(stderr, "AVISO: Não foi possivel gravar dados no %s.\n", BIN_PATH);
-        return 1;
-    }
-
-    printf("Programa encerrado com sucesso.\n");
-    return 0;
-
-    /*SISTEMA sistema;
-    inicializarSistema(&sistema);
-
-    printf("Sistema inicializado com sucesso!\n");
-    return 0;
-    */
+	printf("Programa encerrado com sucesso.\n");
+	return 0;
 }
-
 // Se cada um já tiver atualizado seus arquivos com as instrucoes q mandei no grupo,
 // este arquivo main.c ja deve estar a funcionar perfeitamente para o estacionamento qualquer duvida so me chamar __Lu
 

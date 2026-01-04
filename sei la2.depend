@@ -1,0 +1,15 @@
+# depslib dependency file v1.0
+1767464206 source:c:\codes\projeto-ap_grupo\menu.c
+	<stdlib.h>
+	"menu.h"
+	"funcoes.h"
+
+1767464206 c:\codes\projeto-ap_grupo\menu.h
+	"estruturas.h"
+
+1767558515 c:\codes\projeto-ap_grupo\estruturas.h
+	<stdio.h>
+
+1767529669 c:\codes\projeto-ap_grupo\funcoes.h
+	"estruturas.h"
+
