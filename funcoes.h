@@ -36,6 +36,13 @@ void eliminarEstacionamento(SISTEMA* s, int numEntrada);
 void mostrarMapaPiso(SISTEMA* s, int piso);
 void listarEstacionamentos(SISTEMA* s);
 
+
+// Funcionalidades extra obrigatórias
+void listarVeiculosNoParque(SISTEMA* s);      // EXTRA 1: Listagem
+void mostrarEstatisticas(SISTEMA* s);          // EXTRA 2: Estatísticas
+void pesquisarPorMatricula(SISTEMA* s, const char* matricula); // EXTRA 3: Pesquisa
+void menuPesquisarMatricula(SISTEMA* s);       // Wrapper interativo
+
 // Funções vazias (a implementar)
 /*void gerirLugaresIndisponiveis(SISTEMA* s);
 void funcionalidadeExtra1(SISTEMA* s);

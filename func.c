@@ -1395,6 +1395,168 @@ void listarEstacionamentos(SISTEMA *s) {
     }
 	printf("===================================================\n");
 	printf("Total: %d registos\n", s->totalEstacionamentos);
+
+}
+
+
+
+//====================================================
+// Funcionalidades adicionais obrigatórias (3 à escolha)
+//====================================================
+
+//EXTRA 1: Listagem de veículos atualmente no parque (LISTAGEM obrigatória)
+//Mostra todos os veículos que ainda não têm saída registada
+void listarVeiculosNoParque(SISTEMA* s) {
+    if (!s || !s->estacionamentos) {    // valida ponteiros
+        fprintf(stderr, "Erro: Sistema nulo.\n");
+        return;
+    }
+
+    int count = 0; //contador de veículos encontrados
+    printf("\n========== VEICULOS ATUALMENTE NO PARQUE ==========\n");
+    printf("%-5s %-12s %-12s %-8s %-10s\n",
+        "ID", "Matricula", "Entrada", "Local", "Hora");
+    printf("====================================================\n");
+
+    for (int i = 0; i < s->totalEstacionamentos; i++) {
+        VAGAS* v = &s->estacionamentos[i]; // ponteiro para registo atual
+
+        // Veículo ainda no parque = sem data de saída
+        if (v->dataSaida[0] == '\0' && v->estado == LUGAR_OCUPADO) {
+            printf("%-5d %-12s %-12s %d%c%-2d     %-10s\n",
+                v->id,
+                v->matricula,
+                v->dataEntrada,
+                v->andar + 1,
+                v->fila,
+                v->lugar + 1,
+                v->horaEntrada);
+            count++;
+        }
+    }
+
+    printf("====================================================\n");
+    printf("Total de veiculos no parque: %d\n", count); // mostra total encontrado
+}
+
+//EXTRA 2: Estatísticas de ocupação do parque
+//Mostra ocupaçao por piso, total de lugares livres/ocupados/indisponiveis
+void mostrarEstatisticas(SISTEMA* s) {
+    if (!s) { // valida ponteiro
+        fprintf(stderr, "Erro: Sistema nulo.\n");
+        return;
+    }
+
+    int totalLivres = 0, totalOcupados = 0, totalIndisponiveis = 0; // acumuladores globais
+    int capacidadeTotal = s->parque.pisos * s->parque.filasPorPiso * s->parque.lugaresPorFila; // calcula capacidade total do parque
+
+
+    printf("\n=============== ESTATISTICAS DO PARQUE ===============\n");
+    printf("%-8s %-10s %-10s %-12s %-10s\n",
+        "Piso", "Livres", "Ocupados", "Indisp.", "Ocupacao");
+    printf("======================================================\n");
+
+    for (int p = 0; p < s->parque.pisos; p++) {
+        int livres = 0, ocupados = 0, indisponiveis = 0; // contadores por piso
+
+        for (int f = 0; f < s->parque.filasPorPiso; f++) {
+            for (int l = 0; l < s->parque.lugaresPorFila; l++) {
+                switch (s->parque.mapa[p][f][l]) {
+                case LUGAR_LIVRE:       livres++; break;
+                case LUGAR_OCUPADO:     ocupados++; break;
+                case LUGAR_INDISPONIVEL: indisponiveis++; break;
+                default: break;
+                }
+            }
+        }
+
+        int capacidadePiso = s->parque.filasPorPiso * s->parque.lugaresPorFila; // capacidade do piso atual
+        float taxaOcupacao = (capacidadePiso > 0) ? (ocupados * 100.0f / capacidadePiso) : 0.0f;  // calcula taxa de ocupação (%)
+
+        printf("%-8d %-10d %-10d %-12d %.1f%%\n",
+            p + 1, livres, ocupados, indisponiveis, taxaOcupacao);
+
+        totalLivres += livres;
+        totalOcupados += ocupados;
+        totalIndisponiveis += indisponiveis;
+    }
+
+    printf("======================================================\n");
+    printf("TOTAL:   %-10d %-10d %-12d\n", totalLivres, totalOcupados, totalIndisponiveis);
+
+    float taxaGlobal = (capacidadeTotal > 0) ? (totalOcupados * 100.0f / capacidadeTotal) : 0.0f;
+    printf("\nCapacidade total: %d lugares\n", capacidadeTotal);
+    printf("Taxa de ocupacao global: %.1f%%\n", taxaGlobal);
+    printf("======================================================\n");
+}
+
+//EXTRA 3: Pesquisa por matrícula
+//localiza rapidamente um veículo pela matrícula e mostra posição/estado
+void pesquisarPorMatricula(SISTEMA* s, const char* matricula) {
+    if (!s || !s->estacionamentos || !matricula) {
+        fprintf(stderr, "Erro: Parametros invalidos.\n");
+        return;
+    }
+
+    int encontrados = 0; // contador de resultados
+
+    printf("\n========== PESQUISA POR MATRICULA: %s ==========\n", matricula);
+
+    for (int i = 0; i < s->totalEstacionamentos; i++) {
+        VAGAS* v = &s->estacionamentos[i]; // ponteiro para registo atual
+
+        //comparação e case-insensitive parcial (contém a substring)
+        if (strstr(v->matricula, matricula) != NULL) {                  // verifica se contém a substring
+            encontrados++;                                            // incrementa contador
+
+            const char* estadoStr = //verifica se ainda esta no parque
+                (v->estado == LUGAR_OCUPADO) ? "Ocupado" :
+                (v->estado == LUGAR_LIVRE) ? "Livre" :
+                (v->estado == LUGAR_INDISPONIVEL) ? "Indisponivel" : "?";
+
+            const char* situacao = (v->dataSaida[0] == '\0') ? "NO PARQUE" : "JA SAIU";
+
+            printf("\n--- Registo #%d ---\n", encontrados);
+            printf("Ticket Nº:  %d\n", v->id);
+            printf("Matricula:  %s\n", v->matricula);
+            printf("Entrada:    %s %s\n", v->dataEntrada, v->horaEntrada);
+            printf("Saida:      %s %s\n",
+                v->dataSaida[0] ? v->dataSaida : "-",
+                v->horaSaida[0] ? v->horaSaida : "-");
+            printf("Local:      Piso %d, Fila %c, Lugar %d\n",
+                v->andar + 1, v->fila, v->lugar + 1);
+            printf("Estado:     %s\n", estadoStr);
+            printf("Situacao:   %s\n", situacao);
+        }
+    }
+
+    if (encontrados == 0) { // nenhum resultado
+        printf("Nenhum veiculo encontrado com matricula '%s'.\n", matricula);
+    }
+    else {
+        printf("\n==============================================\n");
+		printf("Total encontrado(s): %d registo(s)\n", encontrados); //mostra total encontrado
+    }
+    printf("==============================================\n");
+}
+
+//Pesquisa por matrícula
+void menuPesquisarMatricula(SISTEMA* s)  
+    if (!s) { // valida ponteiro
+        fprintf(stderr, "Erro: Sistema nulo.\n");
+        return;
+    }
+
+    char matricula[16] = { 0 };
+    printf("Introduza a matricula (ou parte): ");
+    if (scanf("%15s", matricula) != 1) {
+        fprintf(stderr, "Erro ao ler matricula.\n");
+        limparBuffer();
+        return;
+    }
+    limparBuffer();
+
+    pesquisarPorMatricula(s, matricula);
 }
 
 /*void avancarPagina() {
@@ -1443,20 +1605,7 @@ void reverterLugarIndisponivel() {
 }
 
 
-//====================================================
-// Funcionalidades adicionais obrigatórias (3 à escolha)
-//====================================================
-void funcionalidadeExtra1() {
 
-}
-
-void funcionalidadeExtra2() {
-
-}
-
-void funcionalidadeExtra3() {
-
-}
 
 
 //====================================================
