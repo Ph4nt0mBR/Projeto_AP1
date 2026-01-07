@@ -28,7 +28,9 @@ int main() {
 			return 1;
 		}
 	}
-	/*Implementar o resto do codigo aqui*/
+	
+	mostrarMenuPrincipal(&sistema); //chama o menu principal. Nao sei como caralhos demorei tanto tempo a encontrar isto..devia ter usado AI desde o inicio. fucking kill me
+
 
 	if (!guardarBinario(&sistema)) {
 		fprintf(stderr, "Erro: Não foi possivel guardar dados em %s!\n", BIN_PATH);
@@ -38,6 +40,3 @@ int main() {
 	printf("Programa encerrado com sucesso.\n");
 	return 0;
 }
-// Se cada um já tiver atualizado seus arquivos com as instrucoes q mandei no grupo,
-// este arquivo main.c ja deve estar a funcionar perfeitamente para o estacionamento qualquer duvida so me chamar __Lu
-
