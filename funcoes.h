@@ -34,7 +34,7 @@ void alterarEstacionamento(SISTEMA* s, int numEntrada);
 
 
 // Funções vazias (a implementar)
-void registarSaidaVeiculo(SISTEMA* s);
+int registarSaidaVeiculo(SISTEMA* s, int numEntrada);
 void gerirLugaresIndisponiveis(SISTEMA* s);
 void mostrarMapaPiso(SISTEMA* s);
 void listarEstacionamentos(SISTEMA* s);
