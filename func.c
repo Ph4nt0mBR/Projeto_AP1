@@ -669,49 +669,6 @@ void mostrarTicketEntrada(int numEntrada) {
 
 
 //====================================================
-//  Saída de veículos
-//====================================================
-/*
-int registarSaidaVeiculo() {
-
-    return 0;
-}
-
-float calcularValorAPagar(int numEntrada) {
-
-    return 0.0;
-}
-
-void mostrarTicketSaida(int numEntrada) {
-
-}
-
-
-void alterarSaida(int numEntrada) {                                          //Objetivo: Alterar a hora registada de saída de um veículo
-    if (numEntrada < 0 || parqueRegisto[numEntrada].ativo == 1) {            //numEntrada → índice/registo do veículo no parque
-        printf("Erro: Veiculo ainda no parque ou ID invalido!\n");
-        return;
-    }
-
-    printf("Nova hora de saida (hh mm): ");
-    scanf("%d %d", &parqueRegisto[numEntrada].saida.hora,
-        &parqueRegisto[numEntrada].saida.minuto);
-
-    printf("Saida alterada com sucesso!\n");
-
-}  //ta a dar asneira, TUDO q ta em comment assim ta a dar asneira cm erros que nao sao simples
-
-
-
-void anularSaida(int numEntrada) {
-    if (numEntrada < 0) return;                                      //O veiculo ja deve ter saida registada (ativo == 0)
-    //Se for inválido, a função não faz
-    parqueRegisto[numEntrada].ativo = 1;
-    printf("Saida anulada!\n");
-
-}
-*/
-//====================================================
 //  Gestão de registos
 //====================================================
 
@@ -1091,8 +1048,271 @@ void alterarEstacionamento(SISTEMA* s, int numEntrada) { //eu n faco puta se ist
 }
 
 void eliminarEstacionamento(SISTEMA* s, int numEntrada) {
-    if()
+    if (!s || !s->estacionamentos) {
+		fprintf(stderr, "Erro: sistema e/ou estacionamentos nulo(s).\n");
+		return;
+    }
+
+    if (numEntrada <= 0) {
+        fprintf(stderr, "Erro: Numero de entrada invalido.\n");
+        return;
+    }
+
+    int idx = -1;
+    for (int i = 0; i < s->totalEstacionamentos; i++) {
+        if (s->estacionamentos[i].id == numEntrada) {
+            idx = i;
+			break;
+        }
+    }
+
+    if (idx < 0) {
+		fprintf(stderr, "Erro: Estacionamento com ID %d não encontrado.\n", numEntrada);
+		return;
+    }
+
+	VAGAS* v = &s->estacionamentos[idx];
+
+    if (coordenadaValida(&s->parque, v->andar, v->fila, v->lugar)) {
+        int filaIdx = colunaChar_Indice(v->fila);
+        if (filaIdx >= 0 && s->parque.mapa[v->andar][filaIdx][v->lugar] == LUGAR_OCUPADO) {
+			s->parque.mapa[v->andar][filaIdx][v->lugar] = LUGAR_LIVRE;
+        }
+    }
+
+    for (int i = idx; i < s->totalEstacionamentos - 1; i++) {
+		s->estacionamentos[i] = s->estacionamentos[i + 1];
+    }
+
+	memset(&s->estacionamentos[s->totalEstacionamentos - 1], 0, sizeof(VAGAS));
+
+    s->totalEstacionamentos--;
+    
+	printf("Estacionamento(Ticket N. %d) eliminado com sucesso.\n", numEntrada);
+
+    if(!guardarBinario(s)) {
+        fprintf(stderr, "Aviso: Falha ao guardar em binario.\n");
+	}
 }
+
+
+//====================================================
+//  Saída de veículos
+//====================================================
+
+    //  ===== Ferramentas de suporte =====  //
+
+int parseData(const char* dataStr, int* dia, int* mes, int* ano) {
+    if (!dataStr || !dia || !mes || !ano) return 0;
+
+    if (sscanf(dataStr, "%d/%d/%d", dia, mes, ano) != 3) return 0;
+
+    if (*dia < 1 || *dia>31 || *mes < 1 || *mes>12 || *ano < 2000 || *ano > 2100) return 0;
+
+    return 1;
+}
+
+int parseHora(const char* horaStr, int* hora, int* minuto) {
+    if (!horaStr || !hora || !minuto) return 0;
+
+    if (sscanf(horaStr, "%d:%d", hora, minuto) != 2) return 0;
+
+    if (*hora < 0 || *hora > 23 || *minuto < 0 || *minuto > 59) return 0;
+
+    return 1;
+}
+
+void arredondar15Min(int* hora, int* minuto, int arredondarParaCima) {
+    if (!hora || !minuto) return;
+    if (arredondarParaCima) {
+        if (*minuto % 15 != 0) {    // Arredonda para o prox mult de 15
+            *minuto = ((*minuto / 15) + 1) * 15;
+            if (*minuto >= 60) {
+                *minuto = 0;
+                (*hora)++;
+                if (*hora >= 24) {
+                    *hora = 0;  // pula para o próximo dia (não lida com data aqui)
+                }
+            }
+        }
+    }
+    else {
+        if (*minuto % 15 != 0) {
+            *minuto = ((*minuto / 15) + 1) * 15;
+            if (*minuto >= 60) {
+                *minuto = 0;
+                (*hora)++;
+            }
+        }
+    }
+}
+
+int calcularMinutosDiferenca(int diaE, int horaE, int minE, int diaS, int horaS, int minS) {    // *S - saida, *E - entrada
+    int diasDif = diaS - diaE;
+    int minutosTotais = diasDif * 24 * 60;  // Conversão: dia -> min
+    minutosTotais += (horaS - horaE) * 60;  // Soma diff horas -> min
+    minutosTotais += (minS - minE);         // Soma diff min
+
+    return minutosTotais;
+}
+
+int contarMudancasDia(int diaE, int diaS) {
+    int dias = diaS - diaE;
+    return (dias >= 0) ? dias : 0;
+}
+
+void mostrarTicketSaida(const VAGAS* v, float valorPagar) {
+    if (!s || !v) return;
+    printf("\n=========== TICKET SAIDA ===========\n");
+    printf("Ticket Nº:     %d\n", v->id);
+    printf("Matricula:     %s\n", v->matricula);
+    printf("Entrada:       %s %s\n", v->dataEntrada, v->horaEntrada);
+    printf("Saida:         %s %s\n", v->dataSaida, v->horaSaida);
+    printf("Local:         Piso %d, Fila %c, Lugar %d\n",
+        v->andar + 1, v->fila, v->lugar + 1);
+    printf("------------------------------------\n");
+    printf("VALOR A PAGAR: %.2f EUR\n", valorAPagar);
+    printf("====================================\n");
+}
+
+//  ===== Funções principais =====  //
+
+float calcularValorPagar(SISTEMA* s, VAGAS* v) {
+    if (!s || !v) return 0.0f;
+
+    // parse entrada
+    int diaE, mesE, anoE, horaE, minE;
+    if (!parseData(v->dataEntrada, &diaE, &mesE, &anoE)) {
+        fprintf(stderr, "Erro: Data de entrada inválida.\n");
+        return 0.0f;
+    }
+    if (!parseHora(v->horaEntrada, &horaE, &minE)) {
+        fprintf(stderr, "Erro: Hora de entrada inválida.\n");
+        return 0.0f;
+    }
+
+    // parse saída
+    int diaS, mesS, anoS, horaS, minS;
+    if (!parseData(v->dataSaida, &diaS, &mesS, &anoS)) {
+        fprintf(stderr, "Erro: Data de saída inválida.\n");
+        return 0.0f;
+    }
+    if (!parseHora(v->horaSaida, &horaS, &minS)) {
+        fprintf(stderr, "Erro: Hora de saída inválida.\n");
+        return 0.0f;
+    }
+
+    arredondar15Min(&horaE, &minE, 0); // Entrada> prox multiplo
+    arredondar15Min(&horaS, &minS, 1); // Saída> prox multiplo
+
+    //Calcular diferença
+    int totalMinutos = calcularMinutosDiferenca(diaE, horaE, minE, diaS, horaS, minS);
+    int mudancasDia = contarMudancasDia(diaE, diaS);
+
+    float T1 = 0, T2 = 0, T3 = 0, T4 = 0; // Tarifas zeradas para extrair do .txt
+    int check = 0;
+
+    for (int i = 0; i < s->totalTarifas; i++) {
+        if (strcmp(s->tarifas[i].codigo, "CT1") == 0) {
+            T1 = s->tarifas[i].valor; check++;
+        }
+        if (strcmp(s->tarifas[i].codigo, "CT2") == 0) {
+            T2 = s->tarifas[i].valor; check++;
+        }
+        if (strcmp(s->tarifas[i].codigo, "CT3") == 0) {
+            T3 = s->tarifas[i].valor; check++;
+        }
+        if (strcmp(s->tarifas[i].codigo, "CT4") == 0) {
+            T4 = s->tarifas[i].valor; check++;
+        }
+    }
+    if (found < 4) {
+        fprintf(stderr, "Erro: Tarifas incompletas no ficheiro!\n");
+        return 0.0f;
+    }
+
+    //  Calculo T4
+    if (mudancasDia >= 2) {
+        int totalDias = mudancasDia + 1; //Dias completos + imcompleto
+        return totalDias * T4;
+    }
+
+    //  Calculo T3
+    float totalHoras = totalMinutos / 60.0f;
+    float valorHorario = totalHoras * T1; // Assume diurno default
+
+    if (valorHorario > T3 && mudancasDia == 0) {
+        return T3; // Limite T3
+    }
+
+    float valor = (totalMinutos / 60.0f) * T1; // Valor inicial
+    return(valor T3 && mudancasDia == 1) ? T3 : valor;
+}
+
+int registarSaidaVeiculo(SISTEMA* s, int numEntrada) {
+    if (!s || !s->estacionamentos) {
+        fprintf(stderr, "Erro: Sistema nulo.\n");
+        return 0;
+    }
+
+    if (numEntrada <= 0) {
+        fprintf(stderr, "Erro: Numero de entrada invalido");
+        return -1;
+    }
+
+    // Pesquisa do registo
+    VAGAS* v = encontrarEstacionamento(s, numEntrada);
+    if (!v) {
+        fprintf(stderr, "Erro: Veiculo com ticket %d nao encontrado.\n", numEntrada);
+        return -1;
+    }
+
+
+    if (v->dataSaida[0] != '\0') {
+        fprintf(stderr, "Erro: Veiculo com ticket %d ja possui saida registada.\n", numEntrada);
+        return -1;
+    }
+
+    // Pede data e hora de saída
+    printf("Insira:\nData de saida (dd/mm/aaaa): \n");
+    if (scanf("%10s", v->dataSaida) != 1) {
+        fprintf(stderr, "Erro ao ler data de saida.\n");
+        limparBuffer();
+        return -1;
+    }
+    limparBuffer();
+
+    printf("Hora de saida (HH:MM): \n");
+    if (scanf("%5s", v->horaSaida) != 1) {
+        fprintf(stderr, "Erro ao ler hora de saida.\n");
+        limparBuffer();
+        return -1;
+    }
+    limparBuffer();
+
+    //Calculo valor a pagar
+    float valorPagar = calcularValorPagar(s, v);
+
+    //Limpa o lugar no mapa
+    if (coordenadaValida(&s->parque, v->andar, v->fila, v->lugar)) {
+        int filaIdx = colunaChar_Indice(v->fila);
+        if (filaIdx >= 0) {
+            s->parque.mapa[v->andar][filaIdx][v->lugar] = LUGAR_LIVRE;
+        }
+    }
+
+    //Atualiza estado
+    v->estado = LUGAR_LIVRE;
+
+    //Mostra o ticket
+    mostrarTicketSaida(s, v, valorPagar);
+
+    if (!guardarBinario(s)) {
+        fprintf(stderr, "Aviso: Nao foi possivel guardar os dados!\n");
+    }
+    return 0;
+}
+
 
 //====================================================
 // Lugares indisponíveis
