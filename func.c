@@ -448,24 +448,20 @@ void carregarEstacionamentosDeFicheiro(SISTEMA* s){ // Bruno
 void inicializarSistema(SISTEMA* s) {
     if (!s) return;
 
-    s->estacionamentos = malloc(sizeof(VAGAS) * MAX_ESTACIONAMENTOS);
+	memset(s, 0, sizeof(SISTEMA)); //zera todos os campos da struct sistema
+
+	//Alocação dinâmica para os estacionamentos
+	s->estacionamentos = malloc(sizeof(VAGAS) * MAX_ESTACIONAMENTOS);
     if (!s->estacionamentos) {
         fprintf(stderr, "Erro ao alocar memoria para estacionamentos!\n");
-        exit(1);
+        return;
     }
+	memset(s->estacionamentos, 0, sizeof(VAGAS) * MAX_ESTACIONAMENTOS); //zera a memoria alocada
 
-    s->totalTarifas = 0;
-    s->totalEstacionamentos = 0;
-    s->ultimoNumEntrada = 0;
-
+	// Configuração padrão do parque
     s->parque.pisos = 1;
-    s->parque.filasPorPiso = 1;
-    s->parque.lugaresPorFila = 1;
-
-    for (int a = 0; a < MAX_PISO; a++)
-        for (int f = 0; f < MAX_FILA; f++)
-            for (int l = 0; l < MAX_LUGARES; l++)
-                s->parque.mapa[a][f][l] = LUGAR_LIVRE;
+	s->parque.filasPorPiso = 1;
+	s->parque.lugaresPorFila = 1;
 }
 
 
@@ -476,46 +472,51 @@ void configurarParque(PARQUE* p) { //Bruno
         return;
     }
 
+	limparBuffer(); //limpa o buffer do teclado
+
     while (1) { //pergunta e ve se e valido a quantidade de pisos. usa um loop ate user dar un vakor valido, estes 3 blocos de codigo fazem da mesma forma
         printf("Numero de pisos (1-%d): ", MAX_PISO);
         if (scanf("%d", &p->pisos) == 1 && p->pisos >= 1 && p->pisos <= MAX_PISO) { //verifica se e valido
+			limparBuffer();
             break; //break para sair do while
         }
         fprintf(stderr, "Valor invalido, tente novamente.\n");
+		limparBuffer();
     }
 
     while (1) { //pergunta quantidade de filas por piso
         printf("Numero de filas por piso (1-%d): ", MAX_FILA);
         if (scanf("%d", &p->filasPorPiso) == 1 && p->filasPorPiso >= 1 && p->filasPorPiso <= MAX_FILA) { //verifica se e valido
+			limparBuffer();
             break; //break para sair do while
         }
         fprintf(stderr, "Valor invalido, tente novamente.\n");
+		limparBuffer();
     }
 
     while (1) { //pergunta quantidade de lugares por fila
         printf("Numero de lugares por fila (1-%d): ", MAX_LUGARES);
         if (scanf("%d", &p->lugaresPorFila) == 1 && p->lugaresPorFila >= 1 && p->lugaresPorFila <= MAX_LUGARES) { //verifica se e valido
+			limparBuffer();
             break; //break para sair do while
         }
         fprintf(stderr, "Valor invalido, tente novamente.\n");
+		limparBuffer();
     }
 
-    //Pra todas as posicoes ate ao MAX, definimos o estado inicial.
-    //Se a posição existe marca se como LUGAR_LIVRE.
-    //Caso contrario, marcamos como LUGAR_INDISPONIVEL
-    for (int a = 0; a < MAX_PISO; a++) {
-        for (int f = 0; f < MAX_FILA; f++) {
-            for (int l = 0; l < MAX_LUGARES; l++) { //percorre todos os pisos filas e lugares
-                if (a < p->pisos && f < p->filasPorPiso && l < p->lugaresPorFila) {
-                    p->mapa[a][f][l] = LUGAR_LIVRE;
-                }
-                else {
-                    p->mapa[a][f][l] = LUGAR_INDISPONIVEL;
-                } //Verifica se o lugar existe e marca como livre ou indisponivel
-
+    // Inicializa apenas dentro dos limites do utilizador
+    // O mapa já está zerado (LUGAR_LIVRE == 0) pelo memset em inicializarSistema
+    // Aqui só garantimos que está correto
+    for (int a = 0; a < p->pisos; a++) {
+        for (int f = 0; f < p->filasPorPiso; f++) {
+            for (int l = 0; l < p->lugaresPorFila; l++) { //percorre todos os pisos filas e lugares
+                p->mapa[a][f][l] = LUGAR_LIVRE;
             }
         }
     }
+
+    printf("Parque configurado: %d pisos, %d filas por piso, %d lugares por fila.\n",
+		p->pisos, p->filasPorPiso, p->lugaresPorFila);
 }
 
 
@@ -547,20 +548,36 @@ void mostrarOcupacaoPisos() {
 int registarEntradaVeiculo(SISTEMA* s) { //Bruno
     if (!s) return -1;
 
+
+	//Somente um check-up da capacidade
+    if (s->totalEstacionamentos >= MAX_ESTACIONAMENTOS) {
+		fprintf(stderr, "Erro: Capacidade máxima de estacionamentos atingida.\n");
+		return -1;
+    }
+        
     VAGAS novo;
     memset(&novo, 0, sizeof(VAGAS)); //zera todos os campos da struct
 
-    novo.id = ++s->ultimoNumEntrada;
-
     printf("Matricula do veiculo: ");
-    scanf("%s", novo.matricula);
+    if (scanf("%15s", novo.matricula) != 1) {
+		fprintf(stderr, "Erro ao ler matricula.\n");
+		limparBuffer();
+		return -1;
+    }
+	limparBuffer();
 
     int piso; //escolher piso
-    printf("Piso pretendido (0 a %d): ", s->parque.pisos - 1);
-    scanf("%d", &piso);
+    printf("Piso pretendido (1 a %d): ", s->parque.pisos);
+    if (scanf("%d", &piso) != 1) {
+		fprintf(stderr, "Erro ao ler piso.\n");
+		limparBuffer();
+		return -1;
+    }
+	limparBuffer();
+	piso--; //ajusta para indice 0-based
 
     if (piso < 0 || piso >= s->parque.pisos) { //validação piso
-        printf("Piso inválido!\n");
+        fprintf(stderr, "Piso inválido!\n");
         return -1;
     }
 
@@ -575,14 +592,26 @@ int registarEntradaVeiculo(SISTEMA* s) { //Bruno
     novo.lugar = lugarIdx;             //guarda o lugar
 
     printf("Data de entrada (dd/mm/aaaa): ");
-    scanf("%10s", novo.dataEntrada);
+    if (scanf("%10s", novo.dataEntrada) != 1) {
+		fprintf(stderr, "Erro ao ler data de entrada.\n");
+		limparBuffer();
+		return -1;
+    }
+	limparBuffer();
 
     printf("Hora de entrada (HH:MM): ");
-    scanf("%5s", novo.horaEntrada);
+    if (scanf("%5s", novo.horaEntrada) != 1) {
+		fprintf(stderr, "Erro ao ler hora de entrada.\n");
+		limparBuffer();
+		return -1;
+    }
+	limparBuffer();
 
     novo.dataSaida[0] = '\0';
     novo.horaSaida[0] = '\0'; //inicializa data de saida e hora de saida como vazias
     novo.estado = LUGAR_OCUPADO;
+
+    novo.id = ++s->ultimoNumEntrada;
 
     // Atualiza o mapa com índices corretos
     s->parque.mapa[piso][filaIdx][lugarIdx] = LUGAR_OCUPADO;
@@ -590,8 +619,13 @@ int registarEntradaVeiculo(SISTEMA* s) { //Bruno
     //adiciona o registo
     s->estacionamentos[s->totalEstacionamentos++] = novo;
 
-    printf("Entrada registada com sucesso! Ticket Nº %d\n", novo.id);
-    printf("Lugar: Piso %d, Fila %c, Lugar %d\n", novo.andar, novo.fila, novo.lugar); //mostra localizacao
+    printf("\n=========== TICKET ENTRADA ===========\n");
+    printf("Ticket Nº: %d\n", novo.id);
+    printf("Matricula: %s\n", novo.matricula);
+    printf("Entrada:   %s %s\n", novo.dataEntrada, novo.horaEntrada);
+    printf("Local:     Piso %d, Fila %c, Lugar %d\n",
+        novo.andar + 1, novo.fila, novo.lugar + 1);
+    printf("=======================================\n");
 
     return novo.id;
 }
