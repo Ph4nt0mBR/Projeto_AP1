@@ -10,6 +10,13 @@
 1767558515 c:\codes\projeto-ap_grupo\estruturas.h
 	<stdio.h>
 
-1767529669 c:\codes\projeto-ap_grupo\funcoes.h
+1767823103 c:\codes\projeto-ap_grupo\funcoes.h
 	"estruturas.h"
+
+1767822962 source:c:\codes\projeto-ap_grupo\func.c
+	"funcoes.h"
+	<stdlib.h>
+	<locale.h>
+	<string.h>
+	<ctype.h>
 

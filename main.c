@@ -1,5 +1,4 @@
-//Criei o código pra funcionar como o start do programa, qualquer dúvida entrar em contato (main.c é a minha parte do projeto i think) __Luca
-
+#define	_CRT_SECURE_NO_WARNINGS
 /*
   main.c
   Ponto de entrada principal — orquestra inicialização, menu e persistência.

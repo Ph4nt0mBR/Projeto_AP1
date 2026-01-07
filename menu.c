@@ -1,3 +1,5 @@
+#define	_CRT_SECURE_NO_WARNINGS
+
 #include <stdlib.h>
 #include "menu.h"
 #include "funcoes.h"  // Incluir para ter acesso às funções do sistema
@@ -38,9 +40,11 @@ void mostrarMenuPrincipal(SISTEMA* s) {
         printf("1 - Entrada de veiculo\n");
         printf("2 - Saida de veiculo\n");
         printf("3 - Consultar estacionamento\n");
-        printf("4 - Mostrar mapa de um piso\n");
+        printf("4 - Alterar estacionamento\n");
         printf("5 - Listar estacionamentos\n");
-        printf("6 - Gravar dados\n");
+		printf("6 - Mostrar mapa de piso\n");
+		printf("7 - Listar todos os estacionamentos\n");
+        printf("8 - Gravar dados\n");
         printf("9 - Sair\n");
         printf("---------------------------------\n");
         printf("Opcao: ");
@@ -102,10 +106,10 @@ void mostrarMenuPrincipal(SISTEMA* s) {
             break;
         }
 
-        case 7: {
-			listarEstacionamentos(s);
+        case 7: 
+            listarEstacionamentos(s);
 			break;
-        }
+       
         case 8:
             printf("A gravar dados...\n");
             guardarBinario(s);

@@ -1,4 +1,4 @@
-
+#define	_CRT_SECURE_NO_WARNINGS
 
 /*
     header.h
@@ -1315,22 +1315,104 @@ int registarSaidaVeiculo(SISTEMA* s, int numEntrada) {
 
 
 //====================================================
-// Lugares indisponíveis
-//====================================================
-void marcarLugarIndisponivel() {
-
-}
-
-void reverterLugarIndisponivel() {
-
-}
-
-//====================================================
 // Mapa do piso
 //====================================================
-void mostrarMapaPiso(int piso) {
+void mostrarMapaPiso(SISTEMA* s,int piso) {
+    if (!s) {
+        fprintf(stderr, "Erro: Sistema nulo.\n");
+        return;
+    }
+    if(piso < 0 || piso >= s->parque.pisos) {
+        fprintf(stderr, "Erro: Piso invalido! (1 a %d)\n", s->parque.pisos);
+        return;
+	}
+
+    printf("\n========== MAPA DO PISO %d ==========\n", piso + 1);
+
+	printf("    ");
+    for (int l = 0; l < s->parque.lugaresPorFila; l++) {
+		printf("%3d", l + 1);
+    }
+	printf("\n");
+
+    for (int f = 0; f < s->parque.filasPorPiso; f++) {
+        printf(" %c ", 'A' + f);
+        for (int l = 0; l < s->parque.lugaresPorFila; l++) {
+			EstadoLugar estado = s->parque.mapa[piso][f][l];
+            char c;
+            switch (estado) {
+			case LUGAR_LIVRE:   c = '-'; break;
+			case LUGAR_OCUPADO: c = 'X'; break;
+			case LUGAR_INDISPONIVEL: c = '#'; break;
+			default: c = '?'; break;
+            }
+			printf(" %c ", c);
+        }
+		printf("\n");
+    }
+    printf("\nLegenda: - = Livre | X = Ocupado | # = Indisponivel\n");
+    printf("==========================================\n");
+}
+
+
+//====================================================
+// Listagens e paginação
+//====================================================
+void listarEstacionamentos(SISTEMA *s) {
+    if (!s || !s->estacionamentos) {
+        fprintf(stderr, "Erro: Sistema nulo.\n");
+		return;
+    }
+
+    if (s->totalEstacionamentos == 0) {
+        printf("Nenhum estacionamento registado.\n");
+        return;
+    }
+    printf("\n============ LISTA DE ESTACIONAMENTOS ============\n");
+    printf("%-5s %-12s %-12s %-8s %-10s\n",
+        "ID", "Matricula", "Entrada", "Local", "Estado");
+    printf("=================================================== \n");
+
+    for (int i = 0; i < s->totalEstacionamentos; i++) {
+		VAGAS* v = &s->estacionamentos[i];
+
+        const char* estado;
+        switch (v->estado) {
+        case LUGAR_LIVRE: estado = "Livre"; break;
+        case LUGAR_OCUPADO: estado = "Ocupado"; break;
+        case LUGAR_INDISPONIVEL: estado = "Indisp."; break;
+        default: estado = "?"; break;
+        }
+
+        printf("%-5d %-12s %-12s %d%c%-2d     %-10s\n",
+            v->id,
+            v->matricula,
+            v->dataEntrada,
+            v->andar + 1,
+            v->fila,
+            v->lugar + 1,
+            estado);
+    }
+	printf("===================================================\n");
+	printf("Total: %d registos\n", s->totalEstacionamentos);
+}
+
+/*void avancarPagina() {
 
 }
+
+void recuarPagina() {
+
+}
+
+void mostrarPagina(int pagina) {
+
+}
+
+void gravarListagemTXT() {
+
+}
+
 
 //====================================================
 // Persistência
@@ -1348,28 +1430,18 @@ void gravarErros() {
 
 }
 
+
 //====================================================
-// Listagens e paginação
+// Lugares indisponíveis
 //====================================================
-void listarEstacionamentos() {
+void marcarLugarIndisponivel() {
 
 }
 
-void avancarPagina() {
+void reverterLugarIndisponivel() {
 
 }
 
-void recuarPagina() {
-
-}
-
-void mostrarPagina(int pagina) {
-
-}
-
-void gravarListagemTXT() {
-
-}
 
 //====================================================
 // Funcionalidades adicionais obrigatórias (3 à escolha)
@@ -1385,6 +1457,7 @@ void funcionalidadeExtra2() {
 void funcionalidadeExtra3() {
 
 }
+
 
 //====================================================
 // Extras opcionais (E1, E2, E3)

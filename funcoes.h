@@ -19,7 +19,8 @@ void carregarEstacionamentosDeFicheiro(SISTEMA* s);
 
 // Entrada e saída de veículos
 int atribuirLugar(SISTEMA* s, int piso, int* filaOut, int* lugarOut);
-int registarEntradaVeiculo(SISTEMA* s, int numEntrada);
+int registarEntradaVeiculo(SISTEMA* s);
+int registarSaidaVeiculo(SISTEMA* s, int numEntrada);
 
 // Funções auxiliares
 void trimTexto(char* s);
@@ -31,14 +32,13 @@ int coordenadaValida(const PARQUE* p, int andar, char filaChar, int lugar);
 // Consultas e alterações
 void consultarEstacionamento(SISTEMA* s, int numEntrada);
 void alterarEstacionamento(SISTEMA* s, int numEntrada);
-
+void eliminarEstacionamento(SISTEMA* s, int numEntrada);
+void mostrarMapaPiso(SISTEMA* s, int piso);
+void listarEstacionamentos(SISTEMA* s);
 
 // Funções vazias (a implementar)
-int registarSaidaVeiculo(SISTEMA* s, int numEntrada);
-void gerirLugaresIndisponiveis(SISTEMA* s);
-void mostrarMapaPiso(SISTEMA* s);
-void listarEstacionamentos(SISTEMA* s);
+/*void gerirLugaresIndisponiveis(SISTEMA* s);
 void funcionalidadeExtra1(SISTEMA* s);
-void gerarGrafico(SISTEMA* s);
+void gerarGrafico(SISTEMA* s);*/
 
 #endif
