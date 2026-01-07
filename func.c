@@ -90,7 +90,7 @@ int coordenadaValida(const PARQUE* p, int andar, char filaChar, int lugar) {  //
 
 
 //=======================================================
-// Guardar Info
+//  Guardar Info
 //=======================================================
 
 int guardarBinario(SISTEMA* s) {
@@ -167,7 +167,7 @@ int guardarBinario(SISTEMA* s) {
 }
 
 //=======================================================
-// Leituras -- Prioriza ler .bin, caso contrario lê .txt
+//   Leituras -- Prioriza ler .bin, caso contrario lê .txt
 //=======================================================
 
 int carregarBinario(SISTEMA* s) {
@@ -301,7 +301,7 @@ int primeiraLeitura(SISTEMA* s) {
 }
 
 //====================================================
-// Texto: tarifas e estacionamentos
+//   Texto: tarifas e estacionamentos
 //====================================================
 
 void carregarTarifasDeFicheiro(SISTEMA* s) {//Bruno -- Fiz um cado de modificações [Samuel]
@@ -442,7 +442,7 @@ void carregarEstacionamentosDeFicheiro(SISTEMA* s){ // Bruno
 
 
 //====================================================
-// Inicialização e carregamento de dados
+//  Inicialização e carregamento de dados
 //====================================================
 
 void inicializarSistema(SISTEMA* s) {
@@ -520,30 +520,9 @@ void configurarParque(PARQUE* p) { //Bruno
 }
 
 
-
-
-// Removi as funções de carregar tarifas e estacionamento. Vou converter em uma função que inicia a primeira leitura dos arquivos .atxt e depois dos arquivos em .bin [Samuel]
-
-
-// Carregar ficheiros de dados
-
-//esta funcao e basicamente "formatar" o sistema. Tudo volta ao "estado inicial"
-
-//----------------------------------------------------
-// Menus
-//----------------------------------------------------
-/*void mostrarMenuPrincipal() {
-
-}
-
-void mostrarOcupacaoPisos() {
-
-}
-*/
-
-//----------------------------------------------------
-// Entrada de veículos
-//----------------------------------------------------
+//====================================================
+//  Entrada de veículos
+//====================================================
 
 int registarEntradaVeiculo(SISTEMA* s) { //Bruno
     if (!s) return -1;
@@ -688,9 +667,10 @@ void mostrarTicketEntrada(int numEntrada) {
 
 }
 
-//----------------------------------------------------
-// Saída de veículos
-//----------------------------------------------------
+
+//====================================================
+//  Saída de veículos
+//====================================================
 /*
 int registarSaidaVeiculo() {
 
@@ -731,9 +711,132 @@ void anularSaida(int numEntrada) {
 
 }
 */
-//----------------------------------------------------
-// Consulta, alteração e eliminação de registos
-//----------------------------------------------------
+//====================================================
+//  Gestão de registos
+//====================================================
+
+    //  ===== Ferramentas de suporte =====  //
+
+VAGAS* encontrarEstacionamento(SISTEMA* s, int numEntrada) {
+    if (!s || !s->estacionamentos || numEntrada <= 0) {
+		return NULL;
+    }
+
+	//Pesquisa linear nos registos por ID
+    for (int i = 0; i < s->totalEstacionamentos; i++) {
+        if (s->estacionamentos[i].id == numEntrada) {
+			return &s->estacionamentos[i];
+        }
+    }
+	return NULL; //Nao encontrado
+}
+
+int alterarMatricula(VAGAS* v, const char* novaMatricula) {
+    if(!v || !novaMatricula) return 0;
+
+    strncpy(v->matricula, novaMatricula, sizeof(v->matricula) - 1);
+    v->matricula[sizeof(v->matricula) - 1] = '\0';
+
+    return 1;
+}
+
+int moverLugar(SISTEMA* s, VAGAS* v, int novoPiso, char novaFila, int novoLugar) {
+	if (!s || !v) return 0;
+
+	// Update - Valida novas coordenadas
+    if (!coordenadaValida(&s->parque, novoPiso, novaFila, novoLugar)) {
+		return 0; //coordenadas invalidas
+    }
+
+	//Update - Conversão letra para índice
+    int novaFilaIdx = colunaChar_Indice(novaFila);
+	if (novaFilaIdx < 0) return 0;
+
+
+	// Update - Verifica se o lugar destino está livre
+	EstadoLugar estadoDestino = s->parque.mapa[novoPiso][novaFilaIdx][novoLugar];
+    if (estadoDestino != LUGAR_LIVRE) {
+		return 0; //lugar ocupado ou indisponivel
+    }
+
+	// Update - Libera lugar ocupado anteriormente
+    int filaAntigaIdx = colunaChar_Indice(v->fila);
+    if(filaAntigaIdx >= 0 && coordenadaValida(&s->parque, v->andar, v->fila, v->lugar) && s->parque.mapa[v->andar][filaAntigaIdx][v->lugar] == LUGAR_OCUPADO) {
+        s->parque.mapa[v->andar][filaAntigaIdx][v->lugar] = LUGAR_LIVRE;
+	}
+
+	// Update - Ocupa novo lugar (Somente se o estado for ocupado)
+    if (v->estado == LUGAR_OCUPADO) {
+		s->parque.mapa[novoPiso][novaFilaIdx][novoLugar] = LUGAR_OCUPADO;
+    }
+
+	// Update - Atualiza registo de coordenadas
+	v->andar = novoPiso;
+    v->fila = (char)('A' + novaFilaIdx);
+	v->lugar = novoLugar;
+
+    return 1;
+}
+
+int alterarDataHoraEntrada(VAGAS* v, const char* novaData, const char* novaHora) {
+    if (!v || !novaData || !novaHora) return 0;
+
+    // Atualiza data
+    strncpy(v->dataEntrada, novaData, sizeof(v->dataEntrada) - 1);
+	v->dataEntrada[sizeof(v->dataEntrada) - 1] = '\0';
+
+	// Atualiza hora
+    strncpy(v->horaEntrada, novaHora, sizeof(v->horaEntrada) - 1);
+    v->horaEntrada[sizeof(v->horaEntrada) - 1] = '\0';
+
+	return 1;
+}
+
+int alterarDataHoraSaida(VAGAS* v, const char* novaData, const char* novaHora) {
+	if (!v || !novaData || !novaHora) return 0;
+
+	// Atualiza data -- "-" limpa/ Caso contrario atualiza 
+    if (strcmp(novaData, "-") == 0) {
+		v->dataSaida[0] = '\0';
+    }
+    else {
+        strncpy(v->dataSaida, novaData, sizeof(v->dataSaida) - 1);
+		v->dataSaida[sizeof(v->dataSaida) - 1] = '\0';
+    }
+
+    // Atualiza hora -- "-" limpa/ Caso contrario atualiza
+    if (strcmp(novaHora, "-") == 0) {
+        v->horaSaida[0] = '\0';
+    }
+    else {
+        strncpy(v->horaSaida, novaHora, sizeof(v->horaSaida) - 1);
+        v->horaSaida[sizeof(v->horaSaida) - 1] = '\0';
+    }
+	return 1;
+}
+
+int alterarEstado(SISTEMA* s, VAGAS* v, EstadoLugar novoEstado) {
+    if (!s || !v) return 0;
+
+	// Validação do novo estado
+    if (novoEstado < LUGAR_LIVRE || novoEstado > LUGAR_INDISPONIVEL) {
+		return 0; //estado invalido
+    }
+
+	// Atualiza o estado no mapa
+    if (coordenadaValida(&s->parque, v->andar, v->fila, v->lugar)) {
+        int filaIdx = colunaChar_Indice(v->fila);
+        if (filaIdx >= 0) {
+            s->parque.mapa[v->andar][filaIdx][v->lugar] = novoEstado;
+        }
+    }
+	// Atualiza o estado no registo
+	v->estado = novoEstado;
+
+	return 1;
+}
+
+    //  ===== Funções principais =====  //
 
 void consultarEstacionamento(SISTEMA* s, int numEntrada) {
     if (!s || !s->estacionamentos) { //valida ponteiro sistema e estacionamentos
@@ -741,7 +844,7 @@ void consultarEstacionamento(SISTEMA* s, int numEntrada) {
         return;
     }
 
-    if (numEntrada <= 0 || numEntrada > s->totalEstacionamentos) { //valida numero de entrada
+    if (numEntrada <= 0) { //valida numero de entrada
         fprintf(stderr, "Erro: Numero de entrada invalido.\n");
         return;
     }
@@ -770,12 +873,12 @@ void consultarEstacionamento(SISTEMA* s, int numEntrada) {
 
     //mostra detalhes do estacionamento
     printf("------Consulta de Estacionamento------\n");
-    printf("Ticket Nº: %d\n", v->id);               //numero ticket
-    printf("Matricula: %s\n", v->matricula);         //matricula
-    printf("Entrada: %s %s\n", v->dataEntrada, v->horaEntrada); //data e hora entrada
-    printf("Saida: %s %s\n", v->dataSaida[0] ? v->dataSaida : "-", v->horaSaida[0] ? v->horaSaida : "-"); //data e hora saida
-    printf("Local: Piso %d, Fila %c, Lugar %d\n", v->andar, v->fila, v->lugar);             //coordenadas
-    printf("Estado: %s\n", estadoStr); 					 //estado do lugar
+    printf("Ticket Nº:  %d\n", v->id);               //numero ticket
+    printf("Matricula:  %s\n", v->matricula);         //matricula
+    printf("Entrada:    %s %s\n", v->dataEntrada, v->horaEntrada); //data e hora entrada
+    printf("Saida:      %s %s\n", v->dataSaida[0] ? v->dataSaida : "-", v->horaSaida[0] ? v->horaSaida : "-");  //data e hora saida
+    printf("Local:      Piso %d, Fila %c, Lugar %d\n", v->andar + 1, v->fila, v->lugar + 1);             //coordenadas
+    printf("Estado:     %s\n", estadoStr); 					 //estado do lugar
 
 
     //valida coordenadas e mostra estado no mapa
@@ -799,25 +902,23 @@ void alterarEstacionamento(SISTEMA* s, int numEntrada) { //eu n faco puta se ist
         fprintf(stderr, "Erro: sistema e/ou estacionamentos nulo(s).\n");
         return;
     }
-    //localiza o registo pelo ID(ticket)
-    int idx = -1;
-    for (int i = 0; i < s->totalEstacionamentos; i++) { //ciclo for pra percorrer os registos
-        if (s->estacionamentos[i].id == numEntrada) { //compara o id
-            idx = i;
-            break;
-        }
-    }
-    if (idx < 0) { //caso nao encontre
-        fprintf(stderr, "Erro:Estacionamento com ID %d nao encontrado.\n", numEntrada);
+    
+	//Checkup do numero de entrada
+    if (numEntrada <= 0) {
+		fprintf(stderr, "Erro: Numero de entrada invalido.\n");
         return;
     }
 
-    VAGAS* v = &s->estacionamentos[idx];
+	VAGAS* v = encontrarEstacionamento(s, numEntrada); //procura o estacionamento
+    if (!v) {
+        fprintf(stderr, "Erro: Estacionamento com ID %d nao encontrado.\n", numEntrada);
+		return;
+    }
 
-    //opcoes
-    printf("Alterar estacionamento (Ticket Nº %d)\n", v->id);
+    //Menu
+    printf("\n===== ALTERAR ESTACIONAMENTO (Ticket N. %d) =====\n", v->id);
     printf("1) Matricula\n");
-    printf("2) Mover lugar (andar/fila/lugar)\n");
+    printf("2) Mover lugar (piso/fila/lugar)\n");
     printf("3) Data/Hora de entrada\n");
     printf("4) Data/Hora de saida\n");
     printf("5) Estado (0=Livre, 1=Ocupado, 2=Indisponivel)\n");
@@ -827,8 +928,10 @@ void alterarEstacionamento(SISTEMA* s, int numEntrada) { //eu n faco puta se ist
     int opcao = -1;
     if (scanf("%d", &opcao) != 1) {
         fprintf(stderr, "Entrada invalida.\n");
+		limparBuffer();
         return;
     }
+	limparBuffer();
 
     if (opcao == 0) {
         printf("Operacao cancelada.\n");
@@ -837,138 +940,145 @@ void alterarEstacionamento(SISTEMA* s, int numEntrada) { //eu n faco puta se ist
 
     switch (opcao) {
     case 1: {
-        char novaMatricula[sizeof(v->matricula)] = { 0 }; //buffer com tamanho certo
+		//alterar matricula
+		char novaMatricula[16] = { 0 }; //buffer matricula
         printf("Nova matricula: ");
-        scanf("%15s", novaMatricula);
-        strncpy(v->matricula, novaMatricula, sizeof(v->matricula) - 1); //copia a nova matricula
-        v->matricula[sizeof(v->matricula) - 1] = '\0'; //garante que termina em null
-        printf("Matricula alterada com sucesso.\n"); //ifnorma sucesso
-        break;
+        if (scanf("%15s", novaMatricula) != 1) {
+            fprintf(stderr, "Erro ao ler matricula.\n");
+			limparBuffer();
+			return;
+        }
+		limparBuffer();
 
+        if (alterarMatricula(v, novaMatricula)) {
+            printf("Matricula alterada com sucesso.\n");
+        }
+        else {
+			fprintf(stderr, "Falha ao alterar matricula.\n");
+        }
+        break;
     }
 
     case 2: {
-        //mover veiculo pra novo lugar
-        int novoAndar;
+        //mover lugar
+        int novoPiso;
         char novaFilaChar;
         int novoLugar;
 
-        printf("Novo andar (0..%d): ", s->parque.pisos - 1); //limite de andares
-        if (scanf("%d", &novoAndar) != 1) { //valida andar
+        printf("Novo piso (1 a %d): ", s->parque.pisos); //limite de andares
+        if (scanf("%d", &novoPiso) != 1) { //valida andar
             fprintf(stderr, "Entrada invalida para andar.\n");
+			limparBuffer();
             return;
         }
+		limparBuffer();
+		novoPiso--; //ajusta para indice 0-based
 
-        printf("Nova fila (A..%c): ", (char)('A' + s->parque.filasPorPiso - 1)); //limite de filas
-        scanf(" %c", &novaFilaChar); //valida fila
+        printf("Nova fila (A a %c): ", (char)('A' + s->parque.filasPorPiso - 1)); //limite de filas
+        if(scanf(" %c", &novaFilaChar) != 1){ //valida fila
+            fprintf(stderr, "Entrada invalida para fila.\n");
+			limparBuffer();
+            return;
+		}
+		limparBuffer();
 
-        printf("Novo lugar (0..%d): ", s->parque.lugaresPorFila - 1); //limite de lugares por fila
+        
+
+        printf("Novo lugar (1 a %d): ", s->parque.lugaresPorFila); //limite de lugares por fila
         if (scanf("%d", &novoLugar) != 1) { //valida lugar
             fprintf(stderr, "Entrada invalida para lugar.\n");
+			limparBuffer();
             return;
         }
+		limparBuffer();
+		novoLugar--; //ajusta para indice 0-based
 
-        if (!coordenadaValida(&s->parque, novoAndar, novaFilaChar, novoLugar)) { //Valida coordenadas
-            fprintf(stderr, "Coordenadas invalidas.\n");
-            return;
-        }
-
-        int novaFilaIdx = colunaChar_Indice(novaFilaChar); //converte fila char pra indice
-        if (novaFilaIdx < 0) { //valida fila convertida
-            fprintf(stderr, "Fila invalida.\n");
-            return;
-        }
-
-        EstadoLugar estadoDestino = s->parque.mapa[novoAndar][novaFilaIdx][novoLugar]; //saca o estado do lugar destino
-        if (estadoDestino != LUGAR_LIVRE) { //verifica se esta livre
-            fprintf(stderr, "Lugar destino nao esta livre.\n");
-            return;
-        }
-
-        //liberta lugar antigo se estava oucupado
-        int filaAntigaIdx = colunaChar_Indice(v->fila);
-        if (filaAntigaIdx >= 0 &&
-            coordenadaValida(&s->parque, v->andar, v->fila, v->lugar) &&
-            s->parque.mapa[v->andar][filaAntigaIdx][v->lugar] == LUGAR_OCUPADO) {
-            s->parque.mapa[v->andar][filaAntigaIdx][v->lugar] = LUGAR_LIVRE;
-        }
-
-        //marca o novo lugar conforme estado atual
-        if (v->estado == LUGAR_OCUPADO) {
-            s->parque.mapa[novoAndar][novaFilaIdx][novoLugar] = LUGAR_OCUPADO;
-        }
-
-        v->andar = novoAndar; //atualiza andar
-        v->fila = colunaIndice_Char(&s->parque, novaFilaIdx); //atualiza fila
-        v->lugar = novoLugar; //atualiza lugar
-
-        printf("Lugar atualizado: Piso %d, Fila %c, Lugar %d\n", v->andar, v->fila, v->lugar);
+        if (moverLugar(s, v, novoPiso, novaFilaChar, novoLugar)) {
+            printf("Lugar atualizado: Piso %d, Fila %c, Lugar %d\n",
+                v->andar + 1, v->fila, v->lugar + 1);
+        } else{
+            fprintf(stderr, "Falha ao mover lugar. Verifique se o lugar esta livre e as coordenadas sao validas.\n");
+		}
         break;
-    }
+	}
 
     case 3: { //alterar data/hora de entrada
-        char novaData[sizeof(v->dataEntrada)] = { 0 }; //buffe r data
-        char novaHora[sizeof(v->horaEntrada)] = { 0 }; //buffer hora
-        printf("Nova data de entrada (dd/mm/aaaa): ");
-        scanf("%10s", novaData); //le data com limite de caracteres segundo o formato
-        printf("Nova hora de entrada (HH:MM): ");
-        scanf("%5s", novaHora); //le hora com limite de caracters segundo o formato
+		char novaData[12] = { 0 }; //buffer data
+		char novaHora[8] = { 0 }; //buffer hora
 
-        strncpy(v->dataEntrada, novaData, sizeof(v->dataEntrada) - 1); //copia data
-        v->dataEntrada[sizeof(v->dataEntrada) - 1] = '\0'; //garante que termina em null
-        strncpy(v->horaEntrada, novaHora, sizeof(v->horaEntrada) - 1); //copia hora
-        v->horaEntrada[sizeof(v->horaEntrada) - 1] = '\0'; //garante que termina em null
-
-        printf("Data/Hora de entrada atualizadas.\n");
-        break;
-    }
-    case 4: { //alterar data/hora de saida
-        char novaData[sizeof(v->dataSaida)] = { 0 }; //buffer data
-        char novaHora[sizeof(v->horaSaida)] = { 0 }; //buffer hora
-        printf("Nova data de saida (dd/mm/aaaa, '-' para limpar): ");
-        scanf("%10s", novaData);
-        printf("Nova hora de saida (HH:MM, '-' para limpar): ");
-        scanf("%5s", novaHora);
-
-        if (strcmp(novaData, "-") == 0) { //se for "-", limpa
-            v->dataSaida[0] = '\0'; //limpa
+        printf("Nova dara de entrada (dd/mm/aaaa):\n");
+        if (scanf("%10s", novaData) != 1) {
+			fprintf(stderr, "Erro ao ler data.\n");
+			limparBuffer();
+			return;
         }
-        else {
-            strncpy(v->dataSaida, novaData, sizeof(v->dataSaida) - 1); //copia data
-            v->dataSaida[sizeof(v->dataSaida) - 1] = '\0'; //garante que termina em null
-        }
+		limparBuffer();
 
-        if (strcmp(novaHora, "-") == 0) { //se for "-", limpa
-            v->horaSaida[0] = '\0'; //limpa
-        }
-        else {
-            strncpy(v->horaSaida, novaHora, sizeof(v->horaSaida) - 1); //copia hora
-            v->horaSaida[sizeof(v->horaSaida) - 1] = '\0'; //garante que termina em null
-        }
-
-        printf("Data/Hora de saida atualizadas.\n"); //mensagem de sucesso
-        break;
-    }
-    case 5: { //alterar estado
-        int novoEstado; //buffer novo estado
-        printf("Novo estado (0=Livre, 1=Ocupado, 2=Indisponivel): ");
-        if (scanf("%d", &novoEstado) != 1 || novoEstado < (int)LUGAR_LIVRE || novoEstado >(int)LUGAR_INDISPONIVEL) { //valida estado
-            fprintf(stderr, "Estado invalido.\n");
+        printf("Nova hora de entrada (HH:MM):\n");
+        if (scanf("%5s", novaHora) != 1) {
+            fprintf(stderr, "Erro ao ler hora.\n");
+            limparBuffer();
             return;
         }
+		limparBuffer();
 
-        //reflete no mapa se a coordenada for valida
-        if (coordenadaValida(&s->parque, v->andar, v->fila, v->lugar)) {
-            int filaIdx = colunaChar_Indice(v->fila);
-            if (filaIdx >= 0) {
-                s->parque.mapa[v->andar][filaIdx][v->lugar] = (EstadoLugar)novoEstado;
-            }
+        if (alterarDataHoraEntrada(v, novaData, novaHora)) {
+			printf("Data/Hora de entrada atualizadas.\n");
         }
+        else {
+			fprintf(stderr, "Falha ao alterar data/hora de entrada.\n");
+        }
+		break;
+    }
 
-        v->estado = (EstadoLugar)novoEstado; //atualiza estado
-        printf("Estado atualizado.\n");
+    case 4: { //alterar data/hora de saida
+        char novaData[12] = { 0 };
+        char novaHora[8] = { 0 };
+
+        printf("Nova data de saida (dd/mm/aaaa, '-' para limpar): ");
+        if (scanf("%10s", novaData) != 1) {
+            fprintf(stderr, "Erro ao ler data.\n");
+            limparBuffer();
+            return;
+        }
+        limparBuffer();
+
+        printf("Nova hora de saida (HH:MM, '-' para limpar): ");
+        if (scanf("%5s", novaHora) != 1) {
+            fprintf(stderr, "Erro ao ler hora.\n");
+            limparBuffer();
+            return;
+        }
+        limparBuffer();
+
+        if (alterarDataHoraSaida(v, novaData, novaHora)) {
+            printf("Data/Hora de saida atualizadas.\n");
+        }
+        else {
+            fprintf(stderr, "Falha ao atualizar data/hora de saida.\n");
+        }
         break;
     }
+
+    case 5: { //alterar estado
+        int novoEstado;
+        printf("Novo estado (0=Livre, 1=Ocupado, 2=Indisponivel): ");
+        if (scanf("%d", &novoEstado) != 1) {
+            fprintf(stderr, "Entrada invalida.\n");
+            limparBuffer();
+            return;
+        }
+        limparBuffer();
+
+        if (alterarEstado(s, v, (EstadoLugar)novoEstado)) {
+            printf("Estado atualizado.\n");
+        }
+        else {
+            fprintf(stderr, "Falha ao atualizar estado (valor invalido).\n");
+        }
+        break;
+    }
+
     default:
         fprintf(stderr, "Opcao invalida.\n");
         return;
@@ -980,13 +1090,13 @@ void alterarEstacionamento(SISTEMA* s, int numEntrada) { //eu n faco puta se ist
     }
 }
 
-void eliminarEstacionamento(int numEntrada) {
-
+void eliminarEstacionamento(SISTEMA* s, int numEntrada) {
+    if()
 }
 
-//----------------------------------------------------
+//====================================================
 // Lugares indisponíveis
-//----------------------------------------------------
+//====================================================
 void marcarLugarIndisponivel() {
 
 }
@@ -995,16 +1105,16 @@ void reverterLugarIndisponivel() {
 
 }
 
-//----------------------------------------------------
+//====================================================
 // Mapa do piso
-//----------------------------------------------------
-/*void mostrarMapaPiso(int piso) {
+//====================================================
+void mostrarMapaPiso(int piso) {
 
 }
 
-//----------------------------------------------------
+//====================================================
 // Persistência
-//----------------------------------------------------
+//====================================================
 
 void guardarDadosEmBinario() {
 
@@ -1018,9 +1128,9 @@ void gravarErros() {
 
 }
 
-//----------------------------------------------------
+//====================================================
 // Listagens e paginação
-//----------------------------------------------------
+//====================================================
 void listarEstacionamentos() {
 
 }
@@ -1041,9 +1151,9 @@ void gravarListagemTXT() {
 
 }
 
-//----------------------------------------------------
+//====================================================
 // Funcionalidades adicionais obrigatórias (3 à escolha)
-//----------------------------------------------------
+//====================================================
 void funcionalidadeExtra1() {
 
 }
@@ -1056,9 +1166,9 @@ void funcionalidadeExtra3() {
 
 }
 
-//----------------------------------------------------
+//====================================================
 // Extras opcionais (E1, E2, E3)
-//----------------------------------------------------
+//====================================================
 void gerarGrafico() {
 
 }
