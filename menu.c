@@ -57,40 +57,56 @@ void mostrarMenuPrincipal(SISTEMA* s) {
             registarEntradaVeiculo(s);
             break;
 
-        case 2:
-            printf("Saida de veiculo (a implementar)\n");
+        case 2: {
+			int id = 0;                                       
+            printf("Numero de entrada (Ticket):");
+			if (scanf("%d", &id) != 1) { while (getchar() != '\n'); id = 0; } // validacao -- Aplicado em funções q o usuario escreve input 
+			while (getchar() != '\n');                         // limpa o enter (buffer)
+			registarSaidaVeiculo(s, id);
             break;
+        }
 
         case 3: {
-            int id = 0;                                       //n ticket
+            int id = 0;                                      
             printf("Numero de entrada (ticket): ");
-            if (scanf("%d", &id) != 1) { while (getchar() != '\n'); id = 0; } // validacao
-            while (getchar() != '\n');                         // limpa o enter (buffer)
+            if (scanf("%d", &id) != 1) { while (getchar() != '\n'); id = 0; } 
+            while (getchar() != '\n');                        
             consultarEstacionamento(s, id);
             break;
         }
 
         case 4:
-            printf("Mapa do piso (a implementar)\n");
-            break;
-
-        case 5:
-            printf("Listagem de estacionamentos (a implementar)\n");
-            break;
-
-        case 6:
-            printf("A gravar dados...\n");
-            guardarBinario(s);
-            break;
-
-        case 7: {
             int id = 0;
             printf("Numero de entrada (ticket) a alterar: ");
             if (scanf("%d", &id) != 1) { while (getchar() != '\n'); id = 0; }
             while (getchar() != '\n');
             alterarEstacionamento(s, id);
             break;
+
+        case 5:
+            int id = 0;
+            printf("Numero de entrada (ticket) a eliminar: ");
+            if (scanf("%d", &id) != 1) { while (getchar() != '\n'); id = 0; }
+            while (getchar() != '\n');
+            eliminarEstacionamento(s, id);
+            break;
+
+        case 6:
+            int piso = 0;
+            printf("Piso a mostrar (1 a %d): ", s->parque.pisos);
+            if (scanf("%d", &piso) != 1) { while (getchar() != '\n'); piso = 0; }
+            while (getchar() != '\n');
+            mostrarMapaPiso(s, piso - 1);  // 0-based
+            break;
+
+        case 7: {
+			listarEstacionamentos(s);
+			break;
         }
+        case 8:
+            printf("A gravar dados...\n");
+            guardarBinario(s);
+            break;
 
         case 9:
             printf("A sair do programa...\n");

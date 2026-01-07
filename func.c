@@ -1162,7 +1162,7 @@ int contarMudancasDia(int diaE, int diaS) {
 }
 
 void mostrarTicketSaida(const VAGAS* v, float valorPagar) {
-    if (!s || !v) return;
+    if (!v) return;
     printf("\n=========== TICKET SAIDA ===========\n");
     printf("Ticket Nº:     %d\n", v->id);
     printf("Matricula:     %s\n", v->matricula);
@@ -1226,7 +1226,7 @@ float calcularValorPagar(SISTEMA* s, VAGAS* v) {
             T4 = s->tarifas[i].valor; check++;
         }
     }
-    if (found < 4) {
+    if (check < 4) {
         fprintf(stderr, "Erro: Tarifas incompletas no ficheiro!\n");
         return 0.0f;
     }
@@ -1246,7 +1246,7 @@ float calcularValorPagar(SISTEMA* s, VAGAS* v) {
     }
 
     float valor = (totalMinutos / 60.0f) * T1; // Valor inicial
-    return(valor T3 && mudancasDia == 1) ? T3 : valor;
+    return(valor > T3 && mudancasDia == 1) ? T3 : valor;
 }
 
 int registarSaidaVeiculo(SISTEMA* s, int numEntrada) {
@@ -1305,7 +1305,7 @@ int registarSaidaVeiculo(SISTEMA* s, int numEntrada) {
     v->estado = LUGAR_LIVRE;
 
     //Mostra o ticket
-    mostrarTicketSaida(s, v, valorPagar);
+    mostrarTicketSaida(v, valorPagar);
 
     if (!guardarBinario(s)) {
         fprintf(stderr, "Aviso: Nao foi possivel guardar os dados!\n");
