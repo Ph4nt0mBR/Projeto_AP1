@@ -45,10 +45,10 @@ typedef struct parque {		// Config da matriz do estacionamento
 
 typedef struct parametro_estacionamento {		//Informações dos veículos estacionados
 	int id;
-	char matricula[11];		/* Padrão europeu */
-	char dataEntrada[11];	/* dd/mm/aaaa */
+	char matricula[16];		/* Padrão europeu */
+	char dataEntrada[12];	/* dd/mm/aaaa */
 	char horaEntrada[6];	/* hh:mm */
-	char dataSaida[11];		/* dd/mm/aaaa */
+	char dataSaida[12];		/* dd/mm/aaaa */
 	char horaSaida[6];		/* hh:mm */
 	char tipoVeiculo[20];
 

@@ -243,9 +243,16 @@ int carregarBinario(SISTEMA* s) {
 		return 0;
     }
     if (ttlEsts == 0) {
-        free(s->estacionamentos);
-		s->estacionamentos = NULL;
-		s->totalEstacionamentos = 0;
+        // FIX: Don't free/null the array - keep it allocated for future entries
+        if (!s->estacionamentos) {
+            s->estacionamentos = (VAGAS*)malloc(sizeof(VAGAS) * MAX_ESTACIONAMENTOS);
+            if (!s->estacionamentos) {
+                fclose(fp);
+                return 0;
+            }
+        }
+        memset(s->estacionamentos, 0, sizeof(VAGAS) * MAX_ESTACIONAMENTOS);
+        s->totalEstacionamentos = 0;
     }
     else {
         VAGAS* nova = (VAGAS*)realloc(s->estacionamentos, sizeof(VAGAS) * (size_t)ttlEsts);
@@ -370,11 +377,19 @@ void carregarTarifasDeFicheiro(SISTEMA* s) {//Bruno -- Fiz um cado de modificaç
     printf("Tarifas carregadas com sucesso: %d\n", s->totalTarifas);
 }
 
-void carregarEstacionamentosDeFicheiro(SISTEMA* s){ // Bruno
-    // verifica se o sistema é válido
+void carregarEstacionamentosDeFicheiro(SISTEMA* s) {
     if (!s) {
         fprintf(stderr, "Erro: sistema nulo.\n");
         return;
+    }
+
+    if (!s->estacionamentos) {
+        s->estacionamentos = malloc(sizeof(VAGAS) * MAX_ESTACIONAMENTOS);
+        if (!s->estacionamentos) {
+            fprintf(stderr, "Erro ao alocar memoria para estacionamentos!\n");
+            return;
+        }
+        memset(s->estacionamentos, 0, sizeof(VAGAS) * MAX_ESTACIONAMENTOS);
     }
 
     FILE* f = abrirArquivo(ESTACIONAMENTOS_PATH, "r");
@@ -384,24 +399,31 @@ void carregarEstacionamentosDeFicheiro(SISTEMA* s){ // Bruno
     }
 
     s->totalEstacionamentos = 0;
+    s->ultimoNumEntrada = 0;
 
-    char linha[55];
+
+    char linha[200];
     while (fgets(linha, sizeof(linha), f) != NULL) {
-        if (linha[0] == '\0' || linha[0] == '\n' || linha[0] == '\r') continue; //ignora linhas em branco
+        if (linha[0] == '\0' || linha[0] == '\n' || linha[0] == '\r') continue;
 
-        VAGAS e; // FIX: Initialize all fields of 'e' to zero/default
-        memset(&e, 0, sizeof(VAGAS)); //zera todos os bytes da struct, garantindo que todos os campos iniciem com valores padrão (0 ou string vazia).
+        VAGAS e;
+        memset(&e, 0, sizeof(VAGAS));
 
-        if (sscanf(linha, "%d %10s %10s %d %c %d %5s %d",
-            &e.id,
-            e.matricula,
-            e.dataEntrada,   // mantido como estava logicamente (campo existente)
-            &e.andar,
-            &e.fila,
-            &e.lugar,
-            e.horaEntrada,
-            (int*)&e.estado) != 8) {// valor lido, mesmo que depois seja ajustado
-            fprintf(stderr, "Linha de estacionamento invalida: %s\n", linha);
+        int id;
+        char matricula[16] = {0};
+        int anoE, mesE, diaE, horaE, minE;
+        char lugar[16] = {0};  
+        int anoS, mesS, diaS, horaS, minS;
+
+        int campos = sscanf(linha, "%d %15s %d %d %d %d %d %15s %d %d %d %d %d",
+            &id,
+            matricula,
+            &anoE, &mesE, &diaE, &horaE, &minE,
+            lugar,
+            &anoS, &mesS, &diaS, &horaS, &minS);
+
+        if (campos < 8) {
+            fprintf(stderr, "Linha invalida (poucos campos): %s", linha);
             continue;
         }
 
@@ -411,28 +433,89 @@ void carregarEstacionamentosDeFicheiro(SISTEMA* s){ // Bruno
         }
         e.fila = (char)toupper((unsigned char)e.fila);
 
-        if (!coordenadaValida(&s->parque, e.andar, e.fila, e.lugar)) {
-            fprintf(stderr, "Registro ignorado: Coordenadas inválidas (Andar: %d, Fila: %c, Lugar: %d).\n",
-				e.andar, e.fila, e.lugar);
+        int piso = 0;
+        char fila = 'A';
+        int lugarNum = 0;
+        
+        char* p = lugar;
+        
+        while (*p && isdigit((unsigned char)*p)) {
+            piso = piso * 10 + (*p - '0');
+            p++;
+        }
+        
+        if (*p && isalpha((unsigned char)*p)) {
+            fila = (char)toupper((unsigned char)*p);
+            p++;
+        }
+        
+        while (*p && isdigit((unsigned char)*p)) {
+            lugarNum = lugarNum * 10 + (*p - '0');
+            p++;
+        }
+        
+        if (*p && isalpha((unsigned char)*p)) {
+            fila = (char)toupper((unsigned char)*p);
+            p++;
+        }
+        
+        while (*p && isdigit((unsigned char)*p)) {
+            lugarNum = lugarNum * 10 + (*p - '0');
+            p++;
         }
 
-        int filaIdx = colunaChar_Indice(e.fila);
-        if (filaIdx < 0) {
-			fprintf(stderr, "Registro ignorado: Fila inválida '%c'.\n", e.fila);
+        e.id = id;
+        strncpy(e.matricula, matricula, sizeof(e.matricula) - 1);
+        
+        snprintf(e.dataEntrada, sizeof(e.dataEntrada), "%02d/%02d/%04d", diaE, mesE, anoE);
+        snprintf(e.horaEntrada, sizeof(e.horaEntrada), "%02d:%02d", horaE, minE);
+        
+        e.andar = piso - 1; 
+        e.fila = fila;
+        e.lugar = lugarNum - 1;  
+
+        if (campos >= 13) {
+            snprintf(e.dataSaida, sizeof(e.dataSaida), "%02d/%02d/%04d", diaS, mesS, anoS);
+            snprintf(e.horaSaida, sizeof(e.horaSaida), "%02d:%02d", horaS, minS);
+            e.estado = LUGAR_LIVRE;  
+        } else {
+            e.dataSaida[0] = '\0';
+            e.horaSaida[0] = '\0';
+            e.estado = LUGAR_OCUPADO;  
+        }
+
+        if (e.andar < 0 || e.andar >= s->parque.pisos) {
+            fprintf(stderr, "Registro ignorado: Piso %d invalido (max %d).\n", piso, s->parque.pisos);
             continue;
         }
 
-        switch (e.estado) { //Basicamente lida cm o enum do lugar
+        int filaIdx = colunaChar_Indice(e.fila);
+        if (filaIdx < 0 || filaIdx >= s->parque.filasPorPiso) {
+            fprintf(stderr, "Registro ignorado: Fila '%c' invalida.\n", e.fila);
+            continue;
+        }
+
+        if (e.lugar < 0 || e.lugar >= s->parque.lugaresPorFila) {
+            fprintf(stderr, "Registro ignorado: Lugar %d invalido.\n", lugarNum);
+            continue;
+        }
+
+        switch (e.estado) {
         case LUGAR_OCUPADO:
             s->parque.mapa[e.andar][filaIdx][e.lugar] = LUGAR_OCUPADO;
-			break;
+            break;
         case LUGAR_INDISPONIVEL:
-			s->parque.mapa[e.andar][filaIdx][e.lugar] = LUGAR_INDISPONIVEL;
-			break;
+            s->parque.mapa[e.andar][filaIdx][e.lugar] = LUGAR_INDISPONIVEL;
+            break;
         default:
-            s->parque.mapa[e.andar][filaIdx][e.lugar] = LUGAR_LIVRE;
-			break;
+            break;
         }
+
+        if (e.id > s->ultimoNumEntrada) {
+            s->ultimoNumEntrada = e.id;
+        }
+
+
         s->estacionamentos[s->totalEstacionamentos++] = e;
     }
 
@@ -1329,7 +1412,7 @@ void mostrarMapaPiso(SISTEMA* s,int piso) {
 
     printf("\n========== MAPA DO PISO %d ==========\n", piso + 1);
 
-	printf("    ");
+	printf("  ");
     for (int l = 0; l < s->parque.lugaresPorFila; l++) {
 		printf("%3d", l + 1);
     }

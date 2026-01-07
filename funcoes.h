@@ -24,6 +24,7 @@ int registarSaidaVeiculo(SISTEMA* s, int numEntrada);
 
 // Funções auxiliares
 void trimTexto(char* s);
+void limparBuffer(void);
 FILE* abrirArquivo(const char* caminho, const char* modo);
 int colunaChar_Indice(char letraParaNum);
 char colunaIndice_Char(const PARQUE* p, int intParaChar);
