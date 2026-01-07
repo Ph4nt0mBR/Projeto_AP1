@@ -19,7 +19,7 @@ void carregarEstacionamentosDeFicheiro(SISTEMA* s);
 
 // Entrada e saída de veículos
 int atribuirLugar(SISTEMA* s, int piso, int* filaOut, int* lugarOut);
-int registarEntradaVeiculo(SISTEMA* s);
+int registarEntradaVeiculo(SISTEMA* s, int numEntrada);
 
 // Funções auxiliares
 void trimTexto(char* s);

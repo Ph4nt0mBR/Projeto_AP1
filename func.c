@@ -1171,7 +1171,7 @@ void mostrarTicketSaida(const VAGAS* v, float valorPagar) {
     printf("Local:         Piso %d, Fila %c, Lugar %d\n",
         v->andar + 1, v->fila, v->lugar + 1);
     printf("------------------------------------\n");
-    printf("VALOR A PAGAR: %.2f EUR\n", valorAPagar);
+    printf("VALOR A PAGAR: %.2f EUR\n", valorPagar);
     printf("====================================\n");
 }
 
